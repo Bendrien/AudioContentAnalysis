@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 def main():
     x = sp.linspace(0, 10, 5000);
-    plt.plot(x);
+    plt.plot(np.sin(x));
     plt.show();
 
 
