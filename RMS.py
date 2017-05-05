@@ -1,12 +1,20 @@
 import numpy as np
-import scipy as sp
-from scipy import special, optimize
+import scipy.io.wavfile
 import matplotlib.pyplot as plt
+import math
+
+
+def getRMS(x):
+    return math.sqrt(sum( i*i for i in x) / x.size);
+
 
 def main():
-    x = sp.linspace(0, 10, 5000);
-    plt.plot(np.sin(x));
-    plt.show();
+    # read in audio and convert it to normalized floats
+    fs, audio = scipy.io.wavfile.read("sinus_440Hz.wav");
+    audio = np.fromiter((s / 32767 for s in audio), dtype=float);
+    #print(audio);
+    rms = getRMS(audio);
+    print("RMS: " + str(rms));
 
 
 if(__name__ == '__main__'):
