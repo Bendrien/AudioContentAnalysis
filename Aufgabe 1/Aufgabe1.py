@@ -5,8 +5,10 @@ import math
 
 
 def getRMS(x, isLog: bool):
+    # calculate RMS
     rms = math.sqrt(sum(i*i for i in x) / len(x))
 
+    # scale to logarithmic dBFS if wanted
     if isLog:
         if rms == 0:
             return -math.inf
@@ -18,44 +20,36 @@ def getRMS(x, isLog: bool):
 def blockwiseRMS(x, fs: int, frameSizeInMS: int, hopSizeInMS: int, isLog: bool):
     hopSize = msToSamples(hopSizeInMS, fs)  # in samples
     frameSize = msToSamples(frameSizeInMS, fs)  # in samples
-    # x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    # hopSize = 3;
-    # frameSize = 5;
-
-    # print(x);
 
     # zero pad at the end
     rest = len(x) % frameSize
     remainder = 0
     if rest != 0:
         remainder = frameSize - rest
-    # print(remainder);
     x = np.lib.pad(x, (0, remainder), 'constant', constant_values=0)
 
-    print(len(x))
-
+    # calculate the number of blocks
     numberOfFrames = int(math.ceil(len(x) / hopSize))
-
-    # print(numberOfFrames);
-
     output = []
+
+    # blockwise RMS
     for frameCount in range(0, numberOfFrames):
         begin = int(frameCount * hopSize)
         frame = x[begin: begin + frameSize]
-        # print(len(frame));
         output.append(getRMS(frame, isLog))
 
     return output
 
 
+# read in audio and convert it to normalized floats
 def getNormalizedAudio(filename: str):
-    # read in audio and convert it to normalized floats
     fs, audio = scipy.io.wavfile.read(filename)
     maxVal = np.iinfo(audio.dtype).max
     audio = np.fromiter((s / maxVal for s in audio), dtype=float)
     return fs, audio
 
 
+# convert milliseconds to samples
 def msToSamples(timeInMs: int, fs: int):
     return int(math.ceil(timeInMs / 1000 * fs))
 
@@ -93,7 +87,6 @@ def main():
     sinus999HzSignal = [math.sin(2 * math.pi * f0 * n / fs) for n in range(N)]
 
     dcRMS = blockwiseRMS(dcOffsetSignal, fs, 20, 10, False)
-    print(dcRMS)
     plt.plot(dcRMS)
     plt.ylim(-1, 1)
     plt.ylabel("RMS (linear)")
