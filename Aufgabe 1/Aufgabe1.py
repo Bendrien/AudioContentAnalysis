@@ -5,95 +5,116 @@ import math
 
 
 def getRMS(x, isLog):
-    rms = math.sqrt(sum(i*i for i in x) / len(x));
+    rms = math.sqrt(sum(i*i for i in x) / len(x))
 
-    if(isLog):
-        if(rms == 0):
-            return -math.inf;
-        rms = 20 * math.log10(math.fabs(rms));
+    if isLog:
+        if rms == 0:
+            return -math.inf
+        rms = 20 * math.log10(math.fabs(rms))
 
-    return rms;
+    return rms
+
 
 def blockwiseRMS(x, fs, frameSizeInMS, hopSizeInMS, isLog):
-    hopSize = math.ceil(hopSizeInMS / 1000 * fs); # in samples
-    frameSize = math.ceil(frameSizeInMS / 1000 * fs); # in samples
-    #x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    #hopSize = 3;
-    #frameSize = 5;
+    hopSize = msToSamples(hopSizeInMS, fs)  # in samples
+    frameSize = msToSamples(frameSizeInMS, fs)  # in samples
+    # x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    # hopSize = 3;
+    # frameSize = 5;
 
-    #print(x);
+    # print(x);
 
     # zero pad at the end
-    remainder = frameSize - (len(x) % frameSize);
-    #print(remainder);
-    x = np.lib.pad(x, (0, remainder), 'constant', constant_values=(0));
+    rest = len(x) % frameSize
+    remainder = 0
+    if rest != 0:
+        remainder = frameSize - rest
+    # print(remainder);
+    x = np.lib.pad(x, (0, remainder), 'constant', constant_values=0)
 
-    #print(x);
+    print(len(x))
 
-    numberOfFrames = math.ceil((len(x) / hopSize) - 1);
+    numberOfFrames = int(math.ceil(len(x) / hopSize))
 
-    #print(numberOfFrames);
+    # print(numberOfFrames);
 
-    output = [];
+    output = []
     for frameCount in range(0, numberOfFrames):
-        begin = int(frameCount * hopSize);
-        frame = x[begin : begin + frameSize];
-        #print(len(frame));
-        output.append(getRMS(frame, isLog));
+        begin = int(frameCount * hopSize)
+        frame = x[begin : begin + frameSize]
+        # print(len(frame));
+        output.append(getRMS(frame, isLog))
 
-    return output;
+    return output
+
 
 def getNormalizedAudio(filename):
     # read in audio and convert it to normalized floats
-    fs, audio = scipy.io.wavfile.read(filename);
-    maxVal = np.iinfo(audio.dtype).max;
-    audio = np.fromiter((s / maxVal for s in audio), dtype=float);
-    return fs, audio;
+    fs, audio = scipy.io.wavfile.read(filename)
+    maxVal = np.iinfo(audio.dtype).max
+    audio = np.fromiter((s / maxVal for s in audio), dtype=float)
+    return fs, audio
+
+
+def msToSamples(timeInMs, fs):
+    return int(math.ceil(timeInMs / 1000 * fs))
+
 
 def main():
     # Aufgabe 1: RMS
-    fs, audio = getNormalizedAudio("sinus_440Hz.wav");
+    fs, audio = getNormalizedAudio("sinus_440Hz.wav")
 
-    rms = getRMS(audio, False);
-    print("RMS: " + str(rms));
+    rms = getRMS(audio, False)
+    print("RMS: " + str(rms))
 
     # Aufgabe 2: Blockwise RMS
-    fs, audio = getNormalizedAudio("git.wav");
+    fs, audio = getNormalizedAudio("git.wav")
 
-    rms = blockwiseRMS(audio, fs, 20, 10, True);
-    plt.plot(rms);
-    plt.show();
+    rms = blockwiseRMS(audio, fs, 20, 10, True)
+    rmsLog = blockwiseRMS(audio, fs, 20, 10, False)
 
-    rms = blockwiseRMS(audio, fs, 20, 10, False);
-    plt.plot(rms);
-    plt.show();
+    f, subplots = plt.subplots(2)
+    subplots[0].plot(rms)
+    subplots[0].set_title('RMS des git.wav')
+    subplots[0].set_ylabel("RMS (linear)")
+    subplots[1].plot(rmsLog)
+    subplots[1].set_xlabel("Time in Samples")
+    subplots[1].set_ylabel("RMS (dBFS)")
+    plt.show()
+
 
     # Aufgabe 3: Testing
-    fs = 44100;
-    lengthInMs = 100;
-    f0 = 999;
-    N = math.ceil(lengthInMs / 1000 * fs); # in samples
-    dcOffsetSignal   = [0.5 for n in range(N)];
-    nullSignal       = [0 for n in range(N)];
-    sinus999HzSignal = [math.sin(2 * math.pi * f0 * n / fs) for n in range(N)];
+    fs = 44100
+    lengthInMs = 100
+    f0 = 999
+    N = msToSamples(lengthInMs, fs)
+    dcOffsetSignal   = [0.5 for n in range(N)]
+    nullSignal       = [0 for n in range(N)]
+    sinus999HzSignal = [math.sin(2 * math.pi * f0 * n / fs) for n in range(N)]
 
-    dcRMS = blockwiseRMS(dcOffsetSignal, fs, 20, 10, False);
-    print(dcRMS);
-    plt.plot(dcRMS);
-    plt.ylim(-1, 1);
-    plt.title("0.5 DC Offset");
-    plt.show();
+    dcRMS = blockwiseRMS(dcOffsetSignal, fs, 20, 10, False)
+    print(dcRMS)
+    plt.plot(dcRMS)
+    plt.ylim(-1, 1)
+    plt.ylabel("RMS (linear)")
+    plt.title("0.5 DC Offset")
+    plt.show()
 
-    nullRMS = blockwiseRMS(nullSignal, fs, 20, 10, True);
-    plt.plot(nullRMS);
-    plt.ylim(-1, 1);
-    plt.title("Nullvektor");
-    plt.show();
+    nullRMS = blockwiseRMS(nullSignal, fs, 20, 10, False)
+    plt.plot(nullRMS)
+    plt.ylim(-1, 1)
+    plt.ylabel("RMS (linear)")
+    plt.title("Nullvektor")
+    plt.show()
+    # padded signal = 4851
 
-    sinusRMS = blockwiseRMS(sinus999HzSignal, fs, 20, 10, False);
-    plt.plot(sinusRMS);
-    plt.ylim(-1, 1);
-    plt.show();
+    sinusRMS = blockwiseRMS(sinus999HzSignal, fs, 20, 10, False)
+    plt.plot(sinusRMS)
+    plt.ylim(-1, 1)
+    plt.ylabel("RMS (linear)")
+    plt.title("Sinus 999Hz")
+    plt.show()
 
-if(__name__ == '__main__'):
+
+if __name__ == '__main__':
     main()
