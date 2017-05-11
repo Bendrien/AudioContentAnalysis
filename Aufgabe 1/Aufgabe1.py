@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import math
 
 
-def getRMS(x, isLog):
+def getRMS(x, isLog: bool):
     rms = math.sqrt(sum(i*i for i in x) / len(x))
 
     if isLog:
@@ -15,7 +15,7 @@ def getRMS(x, isLog):
     return rms
 
 
-def blockwiseRMS(x, fs, frameSizeInMS, hopSizeInMS, isLog):
+def blockwiseRMS(x, fs: int, frameSizeInMS: int, hopSizeInMS: int, isLog: bool):
     hopSize = msToSamples(hopSizeInMS, fs)  # in samples
     frameSize = msToSamples(frameSizeInMS, fs)  # in samples
     # x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -41,14 +41,14 @@ def blockwiseRMS(x, fs, frameSizeInMS, hopSizeInMS, isLog):
     output = []
     for frameCount in range(0, numberOfFrames):
         begin = int(frameCount * hopSize)
-        frame = x[begin : begin + frameSize]
+        frame = x[begin: begin + frameSize]
         # print(len(frame));
         output.append(getRMS(frame, isLog))
 
     return output
 
 
-def getNormalizedAudio(filename):
+def getNormalizedAudio(filename: str):
     # read in audio and convert it to normalized floats
     fs, audio = scipy.io.wavfile.read(filename)
     maxVal = np.iinfo(audio.dtype).max
@@ -56,7 +56,7 @@ def getNormalizedAudio(filename):
     return fs, audio
 
 
-def msToSamples(timeInMs, fs):
+def msToSamples(timeInMs: int, fs: int):
     return int(math.ceil(timeInMs / 1000 * fs))
 
 
