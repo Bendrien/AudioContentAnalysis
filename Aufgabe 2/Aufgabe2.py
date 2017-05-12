@@ -22,8 +22,9 @@ def get_f0(x, fs: int):
     plt.show()
 
     # find the first peak right of the first zero crossing
-    zeroCrossings = np.where(np.diff(np.signbit(correlation)))[0]
-    firstZeroCrossingIndex = zeroCrossings[0]
+    firstZeroCrossingIndex = correlation.index([x for x in correlation if x <= 0][0]);
+    #firstZeroCrossingIndex = [(i, x) for i, x in enumerate(correlation) if x <= 0][0][0];
+    
     slicedCorrelation = correlation[firstZeroCrossingIndex:]
     maxValue = max(slicedCorrelation)
     maxIndex = slicedCorrelation.index(maxValue)
