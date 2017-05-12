@@ -22,14 +22,15 @@ def blockwiseRMS(x, fs: int, frameSizeInMS: int, hopSizeInMS: int, isLog: bool):
     frameSize = msToSamples(frameSizeInMS, fs)  # in samples
 
     # zero pad at the end
-    rest = len(x) % frameSize
-    remainder = 0
+    rest = len(x) % hopSize
     if rest != 0:
         remainder = frameSize - rest
+    else:
+        remainder = hopSize
     x = np.lib.pad(x, (0, remainder), 'constant', constant_values=0)
 
     # calculate the number of blocks
-    numberOfFrames = int(math.ceil(len(x) / hopSize))
+    numberOfFrames = int(math.ceil(len(x) / hopSize) - 1)  # minus 1, because we zero padded
     output = []
 
     # blockwise RMS
@@ -64,8 +65,8 @@ def main():
     # Aufgabe 2: Blockwise RMS
     fs, audio = getNormalizedAudio("git.wav")
 
-    rms = blockwiseRMS(audio, fs, 20, 10, True)
-    rmsLog = blockwiseRMS(audio, fs, 20, 10, False)
+    rms = blockwiseRMS(audio, fs, 20, 10, False)
+    rmsLog = blockwiseRMS(audio, fs, 20, 10, True)
 
     f, subplots = plt.subplots(2)
     subplots[0].plot(rms)
