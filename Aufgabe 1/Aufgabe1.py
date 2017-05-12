@@ -70,7 +70,7 @@ def main():
 
     f, subplots = plt.subplots(2)
     subplots[0].plot(rms)
-    subplots[0].set_title('RMS des git.wav')
+    subplots[0].set_title('RMS der Datei "git.wav"')
     subplots[0].set_ylabel("RMS (linear)")
     subplots[1].plot(rmsLog)
     subplots[1].set_xlabel("Time in Samples")
@@ -100,7 +100,6 @@ def main():
     plt.ylabel("RMS (linear)")
     plt.title("Nullvektor")
     plt.show()
-    # padded signal = 4851
 
     sinusRMS = blockwiseRMS(sinus999HzSignal, fs, 20, 10, False)
     plt.plot(sinusRMS)
