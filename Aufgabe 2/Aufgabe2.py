@@ -6,7 +6,7 @@ import itertools
 
 
 # Correlates a signal with itself and returns the part from 0 <= i < ∞
-def autocorrelate(x):
+def xcorr(x):
     result = np.correlate(x, x, mode='full')
     result = result[math.floor(len(result)/2):]
     # normalize
@@ -17,22 +17,14 @@ def autocorrelate(x):
 
 # get the fundamental frequency of a signal
 def get_f0(x, fs: int):
-    correlation = autocorrelate(x)
+    x_rr = xcorr(x)
 
-    plt.plot(correlation)
-    plt.show()
-
-    # find the first peak right of the first zero crossing
-    firstZeroCrossingIndex = len(list(itertools.takewhile(lambda x: x >= 0, correlation)));
-    #firstZeroCrossingIndex = correlation.index([x for x in correlation if x <= 0][0]);
-    #firstZeroCrossingIndex = [(i, x) for i, x in enumerate(correlation) if x <= 0][0][0];
-
-    slicedCorrelation = correlation[firstZeroCrossingIndex:]
-    maxValue = max(slicedCorrelation)
-    maxIndex = slicedCorrelation.index(maxValue)
-    peakIndex = maxIndex + firstZeroCrossingIndex
-
-    f0 = fs / peakIndex
+    # index after first zero crossing
+    i0 = sum(1 for _ in itertools.takewhile(lambda x: x >= 0, x_rr))
+    slice = x_rr[i0:]
+    # index of the second peak
+    ip = i0 + slice.index(max(slice))
+    f0 = fs / ip
 
     # dumb check for validity
     if f0 > fs / 2:
