@@ -2,6 +2,7 @@ import numpy as np
 import scipy.io.wavfile
 import matplotlib.pyplot as plt
 import math
+import itertools
 
 
 # Correlates a signal with itself and returns the part from 0 <= i < ∞
@@ -22,9 +23,10 @@ def get_f0(x, fs: int):
     plt.show()
 
     # find the first peak right of the first zero crossing
-    firstZeroCrossingIndex = correlation.index([x for x in correlation if x <= 0][0]);
+    firstZeroCrossingIndex = len(list(itertools.takewhile(lambda x: x >= 0, correlation)));
+    #firstZeroCrossingIndex = correlation.index([x for x in correlation if x <= 0][0]);
     #firstZeroCrossingIndex = [(i, x) for i, x in enumerate(correlation) if x <= 0][0][0];
-    
+
     slicedCorrelation = correlation[firstZeroCrossingIndex:]
     maxValue = max(slicedCorrelation)
     maxIndex = slicedCorrelation.index(maxValue)
