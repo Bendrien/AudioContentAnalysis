@@ -5,6 +5,9 @@ import math
 import itertools
 
 
+def count(iter):
+    return sum(1 for _ in iter)
+
 # Correlates a signal with itself and returns the part from 0 <= i < ∞
 def xcorr(x):
     result = np.correlate(x, x, mode='full')
@@ -20,11 +23,14 @@ def get_f0(x, fs: int):
     x_rr = xcorr(x)
 
     # index after first zero crossing
-    i0 = sum(1 for _ in itertools.takewhile(lambda x: x >= 0, x_rr))
+    i0 = count(itertools.takewhile(lambda x: x >= 0, x_rr))
     slice = x_rr[i0:]
     # index of the second peak
-    ip = i0 + slice.index(max(slice))
-    f0 = fs / ip
+    peakIndex = i0 + slice.index(max(slice))
+    if peakIndex == 0:
+        return 0
+
+    f0 = fs / peakIndex
 
     # dumb check for validity
     if f0 > fs / 2:
@@ -33,27 +39,27 @@ def get_f0(x, fs: int):
     return f0
 
 
-def blockwise(x, fs: int, frameSizeInMS: int, hopSizeInMS: int):
-    hopSize = msToSamples(hopSizeInMS, fs)  # in samples
-    frameSize = msToSamples(frameSizeInMS, fs)  # in samples
-
+# x:         Audio samples (list like)
+# fs:        Sample Rate
+# frameSize: Frame size in sample
+# hopSize:   Hop size in sample
+def blockwise_f0(x, fs: int, frameSize: int, hopSize: int):
     # zero pad at the end
-    rest = len(x) % frameSize
-    remainder = 0
+    rest = len(x) % hopSize
     if rest != 0:
         remainder = frameSize - rest
-    # print(remainder);
+    else:
+        remainder = hopSize
     x = np.lib.pad(x, (0, remainder), 'constant', constant_values=0)
 
-    print(len(x))
-
-    numberOfFrames = int(math.ceil(len(x) / hopSize))
-
+    # calculate the number of blocks
+    numberOfFrames = int(math.ceil(len(x) / hopSize) - 1)  # minus 1, because we zero padded
     output = []
+
+    # blockwise f0
     for frameCount in range(0, numberOfFrames):
         begin = int(frameCount * hopSize)
         frame = x[begin: begin + frameSize]
-        # print(len(frame));
         output.append(get_f0(frame, fs))
 
     return output
@@ -73,26 +79,22 @@ def msToSamples(timeInMs: int, fs: int):
 
 def main():
     # Aufgabe 1: get_f0
-    fs, audio = getNormalizedAudio("sawtooth.wav")
+    fs, saw = getNormalizedAudio("sawtooth.wav")
 
-    f0 = get_f0(audio, fs)
+    f0 = get_f0(saw, fs)
     print("Grundfrequenz: " + str(round(f0, 3)) + " Hz")
 
-    # Aufgabe 2: Blockwise RMS
-    # fs, audio = getNormalizedAudio("git.wav")
-    #
-    # rms = blockwiseRMS(audio, fs, 20, 10, True)
-    # rmsLog = blockwiseRMS(audio, fs, 20, 10, False)
-    #
-    # f, subplots = plt.subplots(2)
-    # subplots[0].plot(rms)
-    # subplots[0].set_title('RMS des git.wav')
-    # subplots[0].set_ylabel("RMS (linear)")
-    # subplots[1].plot(rmsLog)
-    # subplots[1].set_xlabel("Time in Samples")
-    # subplots[1].set_ylabel("RMS (dBFS)")
-    # plt.show()
+    # Aufgabe 2: blockwise_f0
+    fs, violin = getNormalizedAudio("Violin_2.wav")
 
+    frameSize = 2048
+    hopSize = int(frameSize / 2)
+    f0s = blockwise_f0(violin, fs, frameSize, hopSize)
+    plt.plot(f0s)
+    # plt.ylim(-1, 1)
+    plt.ylabel("Frequenz (in Hz)")
+    plt.title('Grundfrequenzverlauf der Datei "Violin_2.wav"')
+    plt.show()
 
     # Aufgabe 3: Testing
     # fs = 44100
@@ -125,7 +127,6 @@ def main():
     # plt.ylabel("RMS (linear)")
     # plt.title("Sinus 999Hz")
     # plt.show()
-
 
 if __name__ == '__main__':
     main()
