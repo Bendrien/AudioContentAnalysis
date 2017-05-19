@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.io.wavfile
+from scipy import signal
 import matplotlib.pyplot as plt
 import math
 import itertools
@@ -8,7 +9,8 @@ import itertools
 # Correlates a signal with itself and returns the part from 0 <= i < ∞
 def xcorr(x):
     result = np.correlate(x, x, mode='full')
-    result = result[math.floor(len(result)/2):]
+    result = result[len(result) // 2:]
+
     # normalize
     maxVal = max(result)
     result = [s / maxVal for s in result]
@@ -20,10 +22,14 @@ def get_f0(x, fs: int):
     x_rr = xcorr(x)
 
     # index after first zero crossing
-    i0 = count(itertools.takewhile(lambda x: x >= 0, x_rr));
-    slice = x_rr[i0:]
+    zeroIndex = count(itertools.takewhile(lambda x: x >= 0, x_rr));
+
+    slice = x_rr[zeroIndex:]
+    if len(slice) == 0:
+        return 0
+
     # index of the second peak
-    peakIndex = i0 + slice.index(max(slice))
+    peakIndex = zeroIndex + slice.index(max(slice))
     if peakIndex == 0:
         return 0
 
@@ -55,11 +61,15 @@ def blockwise_f0(x, fs: int, frameSize: int, hopSize: int):
 
 
 def main():
-    ## Aufgabe 1: get_f0
-    fs, saw = getNormalizedAudio("sawtooth.wav")
+    fs = 44100
+    lengthInMs = 1000
+    N = msToSamples(lengthInMs, fs)
+    f0 = 200;
+    t = np.linspace(0,N,N)
+    triangle = signal.sawtooth(2 * np.pi * f0 * t / fs, 0.5)
 
-    f0 = get_f0(saw, fs)
-    print("Grundfrequenz: " + str(round(f0, 3)) + " Hz")
+    ## Aufgabe 1: get_f0
+    print("Aufgabe 1 - Test get_f0: Grundfrequenz " + str(round(get_f0(triangle, fs), 3)) + " Hz")
 
     ## Aufgabe 2: blockwise_f0
     fs, violin = getNormalizedAudio("Violin_2.wav")
@@ -74,9 +84,17 @@ def main():
     plt.show()
 
     ## Aufgabe 3: Testing
-    fs = 44100
-    lengthInMs = 1000
-    N = msToSamples(lengthInMs, fs)
+
+    # Triangle
+    frameSize = 1024
+    hopSize = frameSize // 2
+    triangle_f0s = blockwise_f0(triangle, fs, frameSize, hopSize)
+    plt.plot(triangle_f0s)
+    plt.title("Aufgabe 3 - Test: Triangle @" + str(f0) + " Hz")
+    plt.xlabel("Frame @" + str(frameSize) + " Samples (Hopsize: " + str(hopSize) + " Samples)")
+    plt.ylabel("Frequenz in Hz")
+    plt.ylim(f0 - 100, f0 + 100)
+    plt.show()
 
     # Sinus
     f0 = 400
@@ -85,22 +103,10 @@ def main():
     sinus = [math.sin(2 * math.pi * f0 * n / fs) for n in range(N)]
     sinus_f0s = blockwise_f0(sinus, fs, frameSize, hopSize)
     plt.plot(sinus_f0s)
-    plt.title("Aufgabe 3 - erster Test: Sinus @" + str(f0) + " Hz")
+    plt.title("Aufgabe 3 - Test: Sinus @" + str(f0) + " Hz")
     plt.xlabel("Frame @" + str(frameSize) + " Samples (Hopsize: " + str(hopSize) + " Samples)")
     plt.ylabel("Frequenz in Hz")
-    plt.ylim(300, 500)
-    plt.show()
-
-    # Saw
-    frameSize = 512
-    hopSize = frameSize // 2
-    fs, saw = getNormalizedAudio("sawtooth.wav")
-    saw_f0s = blockwise_f0(saw, fs, frameSize, hopSize)
-    plt.plot(saw_f0s)
-    plt.title("Aufgabe 3 - zweiter Test: Sawtooth @200 Hz")
-    plt.xlabel("Frame @" + str(frameSize) + " Samples (Hopsize: " + str(hopSize) + " Samples)")
-    plt.ylabel("Frequenz in Hz")
-    plt.ylim(0, 300)
+    plt.ylim(f0 - 100, f0 + 100)
     plt.show()
 
 
