@@ -5,9 +5,6 @@ import math
 import itertools
 
 
-def count(iter):
-    return sum(1 for _ in iter)
-
 # Correlates a signal with itself and returns the part from 0 <= i < ∞
 def xcorr(x):
     result = np.correlate(x, x, mode='full')
@@ -23,7 +20,7 @@ def get_f0(x, fs: int):
     x_rr = xcorr(x)
 
     # index after first zero crossing
-    i0 = count(itertools.takewhile(lambda x: x >= 0, x_rr))
+    i0 = count(itertools.takewhile(lambda x: x >= 0, x_rr));
     slice = x_rr[i0:]
     # index of the second peak
     peakIndex = i0 + slice.index(max(slice))
@@ -44,16 +41,8 @@ def get_f0(x, fs: int):
 # frameSize: Frame size in sample
 # hopSize:   Hop size in sample
 def blockwise_f0(x, fs: int, frameSize: int, hopSize: int):
-    # zero pad at the end
-    rest = len(x) % hopSize
-    if rest != 0:
-        remainder = frameSize - rest
-    else:
-        remainder = hopSize
-    x = np.lib.pad(x, (0, remainder), 'constant', constant_values=0)
-
     # calculate the number of blocks
-    numberOfFrames = int(math.ceil(len(x) / hopSize) - 1)  # minus 1, because we zero padded
+    numberOfFrames = (len(x) // hopSize) - 1
     output = []
 
     # blockwise f0
@@ -63,6 +52,65 @@ def blockwise_f0(x, fs: int, frameSize: int, hopSize: int):
         output.append(get_f0(frame, fs))
 
     return output
+
+
+def main():
+    ## Aufgabe 1: get_f0
+    fs, saw = getNormalizedAudio("sawtooth.wav")
+
+    f0 = get_f0(saw, fs)
+    print("Grundfrequenz: " + str(round(f0, 3)) + " Hz")
+
+    ## Aufgabe 2: blockwise_f0
+    fs, violin = getNormalizedAudio("Violin_2.wav")
+
+    frameSize = 2048
+    hopSize = frameSize // 2
+    f0s = blockwise_f0(violin, fs, frameSize, hopSize)
+    plt.plot(f0s)
+    plt.title('Aufgabe 2: Grundfrequenzverlauf der Datei "Violin_2.wav"')
+    plt.xlabel("Frame @" + str(frameSize) + " Samples (Hopsize: " + str(hopSize) + " Samples)")
+    plt.ylabel("Frequenz (in Hz)")
+    plt.show()
+
+    ## Aufgabe 3: Testing
+    fs = 44100
+    lengthInMs = 1000
+    N = msToSamples(lengthInMs, fs)
+
+    # Sinus
+    f0 = 400
+    frameSize = 1024
+    hopSize = frameSize // 2
+    sinus = [math.sin(2 * math.pi * f0 * n / fs) for n in range(N)]
+    sinus_f0s = blockwise_f0(sinus, fs, frameSize, hopSize)
+    plt.plot(sinus_f0s)
+    plt.title("Aufgabe 3 - erster Test: Sinus @" + str(f0) + " Hz")
+    plt.xlabel("Frame @" + str(frameSize) + " Samples (Hopsize: " + str(hopSize) + " Samples)")
+    plt.ylabel("Frequenz in Hz")
+    plt.ylim(300, 500)
+    plt.show()
+
+    # Saw
+    frameSize = 512
+    hopSize = frameSize // 2
+    fs, saw = getNormalizedAudio("sawtooth.wav")
+    saw_f0s = blockwise_f0(saw, fs, frameSize, hopSize)
+    plt.plot(saw_f0s)
+    plt.title("Aufgabe 3 - zweiter Test: Sawtooth @200 Hz")
+    plt.xlabel("Frame @" + str(frameSize) + " Samples (Hopsize: " + str(hopSize) + " Samples)")
+    plt.ylabel("Frequenz in Hz")
+    plt.ylim(0, 300)
+    plt.show()
+
+
+#########################################
+### Helper functions
+#########################################
+
+
+def count(iter):
+    return sum(1 for _ in iter)
 
 
 def getNormalizedAudio(filename: str):
@@ -76,57 +124,6 @@ def getNormalizedAudio(filename: str):
 def msToSamples(timeInMs: int, fs: int):
     return int(math.ceil(timeInMs / 1000 * fs))
 
-
-def main():
-    # Aufgabe 1: get_f0
-    fs, saw = getNormalizedAudio("sawtooth.wav")
-
-    f0 = get_f0(saw, fs)
-    print("Grundfrequenz: " + str(round(f0, 3)) + " Hz")
-
-    # Aufgabe 2: blockwise_f0
-    fs, violin = getNormalizedAudio("Violin_2.wav")
-
-    frameSize = 2048
-    hopSize = int(frameSize / 2)
-    f0s = blockwise_f0(violin, fs, frameSize, hopSize)
-    plt.plot(f0s)
-    # plt.ylim(-1, 1)
-    plt.ylabel("Frequenz (in Hz)")
-    plt.title('Grundfrequenzverlauf der Datei "Violin_2.wav"')
-    plt.show()
-
-    # Aufgabe 3: Testing
-    # fs = 44100
-    # lengthInMs = 100
-    # f0 = 999
-    # N = msToSamples(lengthInMs, fs)
-    # dcOffsetSignal   = [0.5 for n in range(N)]
-    # nullSignal       = [0 for n in range(N)]
-    # sinus999HzSignal = [math.sin(2 * math.pi * f0 * n / fs) for n in range(N)]
-    #
-    # dcRMS = blockwiseRMS(dcOffsetSignal, fs, 20, 10, False)
-    # print(dcRMS)
-    # plt.plot(dcRMS)
-    # plt.ylim(-1, 1)
-    # plt.ylabel("RMS (linear)")
-    # plt.title("0.5 DC Offset")
-    # plt.show()
-    #
-    # nullRMS = blockwiseRMS(nullSignal, fs, 20, 10, False)
-    # plt.plot(nullRMS)
-    # plt.ylim(-1, 1)
-    # plt.ylabel("RMS (linear)")
-    # plt.title("Nullvektor")
-    # plt.show()
-    # # padded signal = 4851
-    #
-    # sinusRMS = blockwiseRMS(sinus999HzSignal, fs, 20, 10, False)
-    # plt.plot(sinusRMS)
-    # plt.ylim(-1, 1)
-    # plt.ylabel("RMS (linear)")
-    # plt.title("Sinus 999Hz")
-    # plt.show()
 
 if __name__ == '__main__':
     main()
