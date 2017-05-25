@@ -9,8 +9,7 @@ import math
 # Returns the frequency below which 95% of the energy is located
 def spectralRolloff(frame, previousFrame, fs: int):
     magnitudeSpectrum = getMagnitudeSpectrum(frame)
-    percent = 0.95
-    thresholdSum = percent * sum(i * i for i in magnitudeSpectrum)
+    thresholdSum = 0.95 * sum(i * i for i in magnitudeSpectrum)
 
     rolloffIndex = 0
     rolloffSum = 0.0
@@ -24,11 +23,20 @@ def spectralRolloff(frame, previousFrame, fs: int):
 
 
 # Calculates the spectral centroid
-def spectralCentroid(frame, previousFrame,  fs: int):
+def spectralCentroid(frame, previousFrame, fs: int):
     magnitudeSpectrum = getMagnitudeSpectrum(frame)
     frameSize = len(frame)
     frequencies = np.abs(np.fft.fftfreq(frameSize, 1.0/fs)[:frameSize // 2 + 1])  # positive frequencies
     return sum(frequencies * magnitudeSpectrum) / sum(magnitudeSpectrum)
+
+
+# Calculates the spectral flux
+def spectralFlux(frame, previousFrame):
+    magnitudeSpectrum = getMagnitudeSpectrum(frame)
+    previousMagnitudeSpectrum = getMagnitudeSpectrum(previousFrame)
+    K = len(frame)
+
+    return sum(np.square(np.subtract(magnitudeSpectrum, previousMagnitudeSpectrum))) / K
 
 
 # x:            Audiosamples (list like)
@@ -39,6 +47,7 @@ def spectralCentroid(frame, previousFrame,  fs: int):
 def blockwiseFeature(x, fs: int, frameSize: int, hopSize: int, filename: str):
     rolloff = blockwise(x, frameSize, hopSize, spectralRolloff, [fs])
     centroid = blockwise(x, frameSize, hopSize, spectralCentroid, [fs])
+    flux = blockwise(x, frameSize, hopSize, spectralFlux)
 
     f, subplots = plt.subplots(3)
     plt.subplots_adjust(hspace=0.5)
@@ -50,64 +59,22 @@ def blockwiseFeature(x, fs: int, frameSize: int, hopSize: int, filename: str):
     subplots[1].set_title('Spectral centroid der Datei ' + filename)
     subplots[1].set_xlabel("Frames")
     subplots[1].set_ylabel("Frequenz (Hz)")
+    subplots[2].plot(flux)
+    subplots[2].set_title('Spectral flux der Datei ' + filename)
+    subplots[2].set_xlabel("Frames")
+    subplots[2].set_ylabel("Frequenz (Hz)")
     plt.show()
 
 
 def main():
-    # generate a 1 sec, 200 Hz triangle wave
-    fs = 44100
-    lengthInMs = 1000
-    N = msToSamples(lengthInMs, fs)
-    f0 = 200
-    t = np.linspace(0, N, N)
-    triangle = signal.sawtooth(2 * np.pi * f0 * t / fs, 0.5)
-
     fs, flute = getNormalizedAudio("flute_1.wav")
 
     frameSize = 2048
     hopSize = frameSize // 2
     blockwiseFeature(flute, fs, frameSize, hopSize, "flute_1.wav")
 
-    ## Aufgabe 1: get_f0
-    #print("Aufgabe 1 - Test get_f0: Grundfrequenz " + str(round(get_f0(triangle, fs), 3)) + " Hz")
-
-    # ## Aufgabe 2: blockwise_f0
-    # fs, violin = getNormalizedAudio("Violin_2.wav")
-    #
-    # frameSize = 2048
-    # hopSize = frameSize // 2
-    # f0s = blockwise_f0(violin, fs, frameSize, hopSize)
-    # plt.plot(f0s)
-    # plt.title('Aufgabe 2: Grundfrequenzverlauf der Datei "Violin_2.wav"')
-    # plt.xlabel("Frame @" + str(frameSize) + " Samples (Hopsize: " + str(hopSize) + " Samples)")
-    # plt.ylabel("Frequenz (in Hz)")
-    # plt.show()
-    #
-    # ## Aufgabe 3: Testing
-    #
-    # # Triangle
-    # frameSize = 1024
-    # hopSize = frameSize // 2
-    # triangle_f0s = blockwise_f0(triangle, fs, frameSize, hopSize)
-    # plt.plot(triangle_f0s)
-    # plt.title("Aufgabe 3 - Test: Triangle @" + str(f0) + " Hz")
-    # plt.xlabel("Frame @" + str(frameSize) + " Samples (Hopsize: " + str(hopSize) + " Samples)")
-    # plt.ylabel("Frequenz in Hz")
-    # plt.ylim(f0 - 100, f0 + 100)
-    # plt.show()
-    #
-    # # Sinus
-    # f0 = 400
-    # frameSize = 1024
-    # hopSize = frameSize // 2
-    # sinus = [math.sin(2 * math.pi * f0 * n / fs) for n in range(N)]
-    # sinus_f0s = blockwise_f0(sinus, fs, frameSize, hopSize)
-    # plt.plot(sinus_f0s)
-    # plt.title("Aufgabe 3 - Test: Sinus @" + str(f0) + " Hz")
-    # plt.xlabel("Frame @" + str(frameSize) + " Samples (Hopsize: " + str(hopSize) + " Samples)")
-    # plt.ylabel("Frequenz in Hz")
-    # plt.ylim(f0 - 100, f0 + 100)
-    # plt.show()
+    fs, english = getNormalizedAudio("english_23.wav")
+    blockwiseFeature(english, fs, frameSize, hopSize, "english_23.wav")
 
 
 #########################################
@@ -141,7 +108,10 @@ def getMagnitudeSpectrum(frame):
 # blockwiseFunction: The function that is to be called blockwise (first function parameter is the block)
 # functionArgs:      Additional argument the the blockwise function
 # zeroPad:           Enabled zero padding at the end to fit the frameSize
-def blockwise(x, frameSize: int, hopSize: int, blockwiseFunction, functionArgs, zeroPad: bool = True):
+def blockwise(x, frameSize: int, hopSize: int, blockwiseFunction, functionArgs=None, zeroPad: bool = True):
+
+    if functionArgs is None:
+        functionArgs = []
 
     if zeroPad:
         # zero pad at the end
