@@ -1,6 +1,5 @@
 import numpy as np
 import scipy.io.wavfile
-from scipy import signal
 import matplotlib.pyplot as plt
 import math
 
@@ -19,14 +18,15 @@ def spectralRolloff(frame, previousFrame, fs: int):
             rolloffIndex = i
             break
 
-    return rolloffIndex / len(magnitudeSpectrum) * (fs / 2)
+    return rolloffIndex / len(magnitudeSpectrum) * (fs / 2)  # TODO: Frage: Frequenzberechnung nicht in Formel
 
 
 # Calculates the spectral centroid
 def spectralCentroid(frame, previousFrame, fs: int):
     magnitudeSpectrum = getMagnitudeSpectrum(frame)
     frameSize = len(frame)
-    frequencies = np.abs(np.fft.fftfreq(frameSize, 1.0/fs)[:frameSize // 2 + 1])  # positive frequencies
+    # positive center frequencies for each bin
+    frequencies = np.abs(np.fft.fftfreq(frameSize, 1.0/fs)[:frameSize // 2 + 1])  # TODO: Frage: Frequenzberechnung nicht in Formel
     return sum(frequencies * magnitudeSpectrum) / sum(magnitudeSpectrum)
 
 
@@ -67,10 +67,10 @@ def blockwiseFeature(x, fs: int, frameSize: int, hopSize: int, filename: str):
 
 
 def main():
-    fs, flute = getNormalizedAudio("flute_1.wav")
-
     frameSize = 2048
     hopSize = frameSize // 2
+
+    fs, flute = getNormalizedAudio("flute_1.wav")
     blockwiseFeature(flute, fs, frameSize, hopSize, "flute_1.wav")
 
     fs, english = getNormalizedAudio("english_23.wav")
@@ -80,10 +80,6 @@ def main():
 #########################################
 ### Helper functions
 #########################################
-
-
-def count(iter):
-    return sum(1 for _ in iter)
 
 
 def getNormalizedAudio(filename: str):
@@ -126,7 +122,6 @@ def blockwise(x, frameSize: int, hopSize: int, blockwiseFunction, functionArgs=N
     numberOfFrames = int(math.ceil(len(x) / hopSize))
     output = []
     previousFrame = np.zeros(frameSize)
-
 
     if zeroPad:
         numberOfFrames -= 1  # minus 1, because we zero padded
