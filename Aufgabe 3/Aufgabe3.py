@@ -5,6 +5,23 @@ import matplotlib.pyplot as plt
 import math
 
 
+# Calculates the spectral rolloff
+# Returns the frequency below which 95% of the energy is located
+def spectralRolloff(magnitudeSpectrum, fs: int):
+    percent = 0.95
+    thresholdSum = percent * sum(i * i for i in magnitudeSpectrum)
+
+    rolloffIndex = 0
+    rolloffSum = 0.0
+    for i in range(0, len(magnitudeSpectrum)):
+        rolloffSum += magnitudeSpectrum[i] * magnitudeSpectrum[i]
+        if rolloffSum >= thresholdSum:
+            rolloffIndex = i
+            break
+
+    return rolloffIndex / len(magnitudeSpectrum) * (fs / 2)
+
+
 # x:         Audio samples (list like)
 # fs:        Sample Rate
 # frameSize: Frame size in sample
@@ -28,16 +45,18 @@ def blockwise(x, fs: int, frameSize: int, hopSize: int, zeroPad: bool):
     if (zeroPad):
         numberOfFrames -= 1  # minus 1, because we zero padded
 
-    # blockwise RMS
+    # blockwise processing
     for frameCount in range(0, numberOfFrames):
         begin = int(frameCount * hopSize)
         frame = x[begin: begin + frameSize]
-        output.append(get_f0(frame, fs))
+        magnitudeSpectrum = getMagnitudeSpectrum(frame)
+        output.append(spectralRolloff(magnitudeSpectrum, fs))
 
     return output
 
 
 def main():
+    # generate a 1 sec, 200 Hz triangle wave
     fs = 44100
     lengthInMs = 1000
     N = msToSamples(lengthInMs, fs)
@@ -45,8 +64,13 @@ def main():
     t = np.linspace(0, N, N)
     triangle = signal.sawtooth(2 * np.pi * f0 * t / fs, 0.5)
 
+    fs, flute = getNormalizedAudio("flute_1.wav")
+
+    plt.plot(blockwise(flute, fs, 2048, 1024, True))
+    plt.show()
+
     ## Aufgabe 1: get_f0
-    print("Aufgabe 1 - Test get_f0: Grundfrequenz " + str(round(get_f0(triangle, fs), 3)) + " Hz")
+    #print("Aufgabe 1 - Test get_f0: Grundfrequenz " + str(round(get_f0(triangle, fs), 3)) + " Hz")
 
     # ## Aufgabe 2: blockwise_f0
     # fs, violin = getNormalizedAudio("Violin_2.wav")
@@ -106,6 +130,10 @@ def getNormalizedAudio(filename: str):
 
 def msToSamples(timeInMs: int, fs: int):
     return int(math.ceil(timeInMs / 1000 * fs))
+
+
+def getMagnitudeSpectrum(frame):
+    return abs(np.fft.rfft(frame))
 
 
 if __name__ == '__main__':
