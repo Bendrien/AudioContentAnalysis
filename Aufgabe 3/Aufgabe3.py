@@ -7,7 +7,8 @@ import math
 
 # Calculates the spectral rolloff
 # Returns the frequency below which 95% of the energy is located
-def spectralRolloff(magnitudeSpectrum, fs: int):
+def spectralRolloff(frame, fs: int):
+    magnitudeSpectrum = getMagnitudeSpectrum(frame)
     percent = 0.95
     thresholdSum = percent * sum(i * i for i in magnitudeSpectrum)
 
@@ -22,12 +23,20 @@ def spectralRolloff(magnitudeSpectrum, fs: int):
     return rolloffIndex / len(magnitudeSpectrum) * (fs / 2)
 
 
+# Calculates the spectral centroid
+def spectralCentroid(frame, fs: int):
+    magnitudeSpectrum = getMagnitudeSpectrum(frame)
+    frameSize = len(frame)
+    frequencies = np.abs(np.fft.fftfreq(frameSize, 1.0/fs)[:frameSize // 2 + 1])  # positive frequencies
+    return sum(frequencies * magnitudeSpectrum) / sum(magnitudeSpectrum)
+
+
 # x:         Audio samples (list like)
 # fs:        Sample Rate
 # frameSize: Frame size in sample
 # hopSize:   Hop size in sample
 # zeroPad:   Enabled zero padding at the end to fit the frameSize
-def blockwise(x, fs: int, frameSize: int, hopSize: int, zeroPad: bool):
+def blockwise(x, fs: int, frameSize: int, hopSize: int, blockwiseFunction, functionArgs, zeroPad: bool = True):
 
     if (zeroPad):
         # zero pad at the end
@@ -49,8 +58,7 @@ def blockwise(x, fs: int, frameSize: int, hopSize: int, zeroPad: bool):
     for frameCount in range(0, numberOfFrames):
         begin = int(frameCount * hopSize)
         frame = x[begin: begin + frameSize]
-        magnitudeSpectrum = getMagnitudeSpectrum(frame)
-        output.append(spectralRolloff(magnitudeSpectrum, fs))
+        output.append(blockwiseFunction(frame, *functionArgs))
 
     return output
 
@@ -66,7 +74,9 @@ def main():
 
     fs, flute = getNormalizedAudio("flute_1.wav")
 
-    plt.plot(blockwise(flute, fs, 2048, 1024, True))
+    frameSize = 2048
+    hopSize = frameSize // 2
+    plt.plot(blockwise(flute, fs, frameSize, hopSize, spectralCentroid, fs))
     plt.show()
 
     ## Aufgabe 1: get_f0
