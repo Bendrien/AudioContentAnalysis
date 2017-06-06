@@ -1,8 +1,156 @@
 import numpy as np
+import glob
+import scipy.io.wavfile
+import wavio
+import matplotlib.pyplot as plt
+import math
+
 
 def main():
-    print("hello World!")
+    print("Aufgabe 4")
+    hop = 512
+    frame = 1024
+
+    percs = []
+    for filename in glob.glob('samples/training/perc/*.wav'):
+        print(filename)
+        percs.append(getNormalizedAudio(filename))
+
+    tonals = []
+    for filename in glob.glob('samples/training/tonal/*.wav'):
+        print(filename)
+        tonals.append(getNormalizedAudio(filename))
+
+
     return
+
+
+def getNormalizedAudio(filename: str):
+    # read in audio and convert it to normalized floats
+    wav = wavio.read(filename)
+    audio = wav.data
+    fs = wav.rate
+    maxVal = np.iinfo(audio.dtype).max
+    audio = np.fromiter((s / maxVal for s in audio), dtype=float)
+    return fs, audio
+
+
+#########################################
+### Aufgabe 3
+#########################################
+
+
+# Calculates the spectral rolloff
+# Returns the frequency below which 95% of the energy is located
+def spectralRolloff(frame, previousFrame, fs: int):
+    magnitudeSpectrum = getMagnitudeSpectrum(frame)
+    thresholdSum = 0.95 * sum(i * i for i in magnitudeSpectrum)
+
+    rolloffIndex = 0
+    rolloffSum = 0.0
+    for i in range(0, len(magnitudeSpectrum)):
+        rolloffSum += magnitudeSpectrum[i] * magnitudeSpectrum[i]
+        if rolloffSum >= thresholdSum:
+            rolloffIndex = i
+            break
+
+    return rolloffIndex / len(magnitudeSpectrum) * (fs / 2)  # TODO: Frage: Frequenzberechnung nicht in Formel
+
+
+# Calculates the spectral centroid
+def spectralCentroid(frame, previousFrame, fs: int):
+    magnitudeSpectrum = getMagnitudeSpectrum(frame)
+    frameSize = len(frame)
+    # positive center frequencies for each bin
+    frequencies = np.abs(np.fft.fftfreq(frameSize, 1.0/fs)[:frameSize // 2 + 1])  # TODO: Frage: Frequenzberechnung nicht in Formel
+    return sum(frequencies * magnitudeSpectrum) / sum(magnitudeSpectrum)
+
+
+# Calculates the spectral flux
+def spectralFlux(frame, previousFrame):
+    magnitudeSpectrum = getMagnitudeSpectrum(frame)
+    previousMagnitudeSpectrum = getMagnitudeSpectrum(previousFrame)
+    K = len(frame)
+
+    return sum(np.square(np.subtract(magnitudeSpectrum, previousMagnitudeSpectrum))) / K
+
+
+# x:            Audiosamples (list like)
+# fs:           Sample rate
+# frameSize:    Frame size in sample
+# hopSize:      Hop size in sample
+# filename:     Name of the file
+def blockwiseFeature(x, fs: int, frameSize: int, hopSize: int, filename: str):
+    rolloff = blockwise(x, frameSize, hopSize, spectralRolloff, [fs])
+    centroid = blockwise(x, frameSize, hopSize, spectralCentroid, [fs])
+    flux = blockwise(x, frameSize, hopSize, spectralFlux)
+
+    f, subplots = plt.subplots(3)
+    plt.subplots_adjust(hspace=0.5)
+    subplots[0].plot(rolloff)
+    subplots[0].set_title('Spectral rolloff der Datei ' + filename)
+    subplots[0].set_xlabel("Frames")
+    subplots[0].set_ylabel("Frequenz (Hz)")
+    subplots[1].plot(centroid)
+    subplots[1].set_title('Spectral centroid der Datei ' + filename)
+    subplots[1].set_xlabel("Frames")
+    subplots[1].set_ylabel("Frequenz (Hz)")
+    subplots[2].plot(flux)
+    subplots[2].set_title('Spectral flux der Datei ' + filename)
+    subplots[2].set_xlabel("Frames")
+    subplots[2].set_ylabel("Frequenz (Hz)")
+    plt.show()
+
+
+#########################################
+### Helper functions
+#########################################
+
+
+def msToSamples(timeInMs: int, fs: int):
+    return int(math.ceil(timeInMs / 1000 * fs))
+
+
+def getMagnitudeSpectrum(frame):
+    return abs(np.fft.rfft(frame))
+
+
+# x:                 Audio samples (list like)
+# frameSize:         Frame size in sample
+# hopSize:           Hop size in sample
+# blockwiseFunction: The function that is to be called blockwise (first function parameter is the block)
+# functionArgs:      Additional argument the the blockwise function
+# zeroPad:           Enabled zero padding at the end to fit the frameSize
+def blockwise(x, frameSize: int, hopSize: int, blockwiseFunction, functionArgs=None, zeroPad: bool = True):
+
+    if functionArgs is None:
+        functionArgs = []
+
+    if zeroPad:
+        # zero pad at the end
+        rest = len(x) % hopSize
+        if rest != 0:
+            remainder = frameSize - rest
+        else:
+            remainder = hopSize
+        x = np.lib.pad(x, (0, remainder), 'constant', constant_values=0)
+
+    # calculate the number of blocks
+    numberOfFrames = int(math.ceil(len(x) / hopSize))
+    output = []
+    previousFrame = np.zeros(frameSize)
+
+    if zeroPad:
+        numberOfFrames -= 1  # minus 1, because we zero padded
+
+    # blockwise processing
+    for frameCount in range(0, numberOfFrames):
+        begin = int(frameCount * hopSize)
+        frame = x[begin: begin + frameSize]
+        output.append(blockwiseFunction(frame, previousFrame, *functionArgs))
+        previousFrame = frame
+
+    return output
 
 if __name__ == '__main__':
     main()
