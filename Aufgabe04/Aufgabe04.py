@@ -7,22 +7,32 @@ import math
 
 
 def main():
-    print("Aufgabe 4")
     hop = 512
     frame = 1024
 
     percs = []
     for filename in glob.glob('samples/training/perc/*.wav'):
-        print(filename)
         percs.append(getNormalizedAudio(filename))
 
     tonals = []
     for filename in glob.glob('samples/training/tonal/*.wav'):
-        print(filename)
         tonals.append(getNormalizedAudio(filename))
 
+    # Aufgabe 1
+    percsMeta = training(percs, frame, hop)
+    tonalsMeta = training(tonals, frame, hop)
 
     return
+
+
+def training(samples, frameSize, hopSize):
+    meta = []
+    for fs, sample in samples:
+        rolloff = blockwise(sample, frameSize, hopSize, spectralRolloff, [fs])
+        centroid = blockwise(sample, frameSize, hopSize, spectralCentroid, [fs])
+        flux = blockwise(sample, frameSize, hopSize, spectralFlux)
+        meta.append([np.mean(rolloff), np.mean(centroid), np.var(flux)])
+    return meta
 
 
 def getNormalizedAudio(filename: str):
@@ -36,7 +46,7 @@ def getNormalizedAudio(filename: str):
 
 
 #########################################
-### Aufgabe 3
+### Functions from task 3
 #########################################
 
 
