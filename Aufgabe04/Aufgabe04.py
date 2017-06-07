@@ -20,8 +20,16 @@ def main():
         samples.append([fs, audio, 1])
 
     # Aufgabe 1
-    metaŝ = training(samples, frame, hop)
+    meta = training(samples, frame, hop)
 
+
+    dim = list(zip(*meta))
+
+    for i, dimension in enumerate(dim):
+        if i < 3:
+            dim[i] /= np.std(dimension)
+
+    meta = list(zip(*dim))
 
     return
 
@@ -32,7 +40,7 @@ def training(samples, frameSize, hopSize):
         rolloff = blockwise(sample, frameSize, hopSize, spectralRolloff, [fs])
         centroid = blockwise(sample, frameSize, hopSize, spectralCentroid, [fs])
         flux = blockwise(sample, frameSize, hopSize, spectralFlux)
-        meta.append([np.mean(rolloff), np.mean(centroid), np.var(flux)])
+        meta.append([np.mean(rolloff), np.mean(centroid), np.var(flux), label])
     return meta
 
 
