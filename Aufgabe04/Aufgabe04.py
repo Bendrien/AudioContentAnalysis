@@ -40,11 +40,11 @@ def main():
     #plt.show()
 
     # Aufgabe 2
-    featureString = ["Rolloff", "Centroid", "Flux"]
+    featureString = ["Rolloff", "Centroid", "Flux", "Nothing"]
     testSamples = []
     for filename in glob.glob('samples/testset/*.wav'):
         fs, audio = getNormalizedAudio(filename)
-        testSamples.append([fs, audio, filename])
+        testSamples.append([fs, audio, filename[16:]])
 
     testMeta = analyze(testSamples, frame, hop)
 
@@ -76,7 +76,8 @@ def classify(sn, knn, k, ignore):
     sn /= knn[0]
 
     # remove ingored feature
-    sn = np.delete(sn, ignore)
+    if ignore < 3:
+        sn = np.delete(sn, ignore)
 
     distances = []
     for i, elem in enumerate(knn[1]):
@@ -84,7 +85,8 @@ def classify(sn, knn, k, ignore):
         # remove label
         a = np.delete(a, -1)
         # remove ingored feature
-        a = np.delete(a, ignore)
+        if ignore < 3:
+            a = np.delete(a, ignore)
         dist = np.linalg.norm(a - sn)
         distances.append([i, dist])
 
