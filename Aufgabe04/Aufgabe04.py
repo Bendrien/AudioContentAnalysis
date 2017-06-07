@@ -4,6 +4,8 @@ import scipy.io.wavfile
 import wavio
 import matplotlib.pyplot as plt
 import math
+import copy
+
 
 
 def main():
@@ -38,6 +40,7 @@ def main():
     #plt.show()
 
     # Aufgabe 2
+    featureString = ["Rolloff", "Centroid", "Flux"]
     testSamples = []
     for filename in glob.glob('samples/testset/*.wav'):
         fs, audio = getNormalizedAudio(filename)
@@ -45,8 +48,10 @@ def main():
 
     testMeta = analyze(testSamples, frame, hop)
 
-    for s in testMeta:
-        print(s[3] + ": " + classify(s, KNN, 3))
+    for i in range(0, len(featureString)):
+        for s in testMeta:
+            print(featureString[i] + " ignored: " + s[3] + " is " + classify(copy.deepcopy(s), KNN, 3, i))
+        print()
 
     return
 
@@ -62,7 +67,7 @@ def analyze(samples, frameSize, hopSize):
 
 
 
-def classify(sn, knn, k):
+def classify(sn, knn, k, ignore):
     if len(sn) > 3:
         sn.pop(-1)
     sn = np.array(sn)
@@ -70,12 +75,17 @@ def classify(sn, knn, k):
     # normalize with std
     sn /= knn[0]
 
-    b = np.array((sn[0], sn[2]))
+    # remove ingored feature
+    sn = np.delete(sn, ignore)
 
     distances = []
     for i, elem in enumerate(knn[1]):
-        a = np.array((elem[0], elem[2]))
-        dist = np.linalg.norm(a - b)
+        a = np.array(elem)
+        # remove label
+        a = np.delete(a, -1)
+        # remove ingored feature
+        a = np.delete(a, ignore)
+        dist = np.linalg.norm(a - sn)
         distances.append([i, dist])
 
     distances.sort(key=lambda x: x[1])
@@ -87,7 +97,7 @@ def classify(sn, knn, k):
     if klasse > 0:
         return "tonal"
     else:
-        return "perc"
+        return "percussive"
 
 
 def normalize(v):
