@@ -18,15 +18,16 @@ def spectralRolloff(frame, previousFrame, fs: int):
             rolloffIndex = i
             break
 
-    return rolloffIndex / len(magnitudeSpectrum) * (fs / 2)  # TODO: Frage: Frequenzberechnung nicht in Formel
+    return rolloffIndex / len(magnitudeSpectrum) * (fs / 2)
 
 
 # Calculates the spectral centroid
+# returns the frequency of the spectral centroid
 def spectralCentroid(frame, previousFrame, fs: int):
     magnitudeSpectrum = getMagnitudeSpectrum(frame)
     frameSize = len(frame)
     # positive center frequencies for each bin
-    frequencies = np.abs(np.fft.fftfreq(frameSize, 1.0/fs)[:frameSize // 2 + 1])  # TODO: Frage: Frequenzberechnung nicht in Formel
+    frequencies = np.abs(np.fft.fftfreq(frameSize, 1.0/fs)[:frameSize // 2 + 1])
     return sum(frequencies * magnitudeSpectrum) / sum(magnitudeSpectrum)
 
 
@@ -75,6 +76,9 @@ def main():
 
     fs, english = getNormalizedAudio("english_23.wav")
     blockwiseFeature(english, fs, frameSize, hopSize, "english_23.wav")
+
+    fs, test = getNormalizedAudio("test.wav")
+    blockwiseFeature(test, fs, frameSize, hopSize, "test.wav")
 
 
 #########################################
