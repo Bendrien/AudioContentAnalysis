@@ -3,6 +3,7 @@ import glob
 import scipy.io.wavfile
 import wavio
 import matplotlib.pyplot as plt
+import plotly.plotly as py
 import math
 
 
@@ -22,6 +23,20 @@ def main():
     # Aufgabe 1
     meta = analyze(samples, frame, hop)
     metaNormalized = normalize(meta)
+
+    fig, ax = plt.subplots()
+
+    for s in metaNormalized:
+        if s[3] == 0:
+            marker = None
+        else:
+            marker = 's'
+
+        ax.scatter(s[0], s[1], color='r', marker=marker, alpha=.6)
+        ax.scatter(s[1], s[2], color='g', marker=marker, alpha=.6)
+        ax.scatter(s[0], s[2], color='b', marker=marker, alpha=.6)
+
+    plt.show()
 
     return
 
