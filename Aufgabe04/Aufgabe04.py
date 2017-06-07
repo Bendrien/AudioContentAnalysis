@@ -20,21 +20,13 @@ def main():
         samples.append([fs, audio, 1])
 
     # Aufgabe 1
-    meta = training(samples, frame, hop)
-
-
-    dim = list(zip(*meta))
-
-    for i, dimension in enumerate(dim):
-        if i < 3:
-            dim[i] /= np.std(dimension)
-
-    meta = list(zip(*dim))
+    meta = analyze(samples, frame, hop)
+    metaNormalized = normalize(meta)
 
     return
 
 
-def training(samples, frameSize, hopSize):
+def analyze(samples, frameSize, hopSize):
     meta = []
     for fs, sample, label in samples:
         rolloff = blockwise(sample, frameSize, hopSize, spectralRolloff, [fs])
@@ -46,6 +38,14 @@ def training(samples, frameSize, hopSize):
 
 
 # def classify(sn, knn, k):
+
+
+def normalize(v):
+    out = list(zip(*v))
+    for i, dimension in enumerate(out):
+        if i < 3:
+            out[i] /= np.std(dimension)
+    return list(zip(*out))
 
 
 
