@@ -39,6 +39,7 @@ def main():
 
     # Aufgabe 2
     featureString = ["Rolloff", "Centroid", "Flux", "Nothing"]
+    map = {'sax.wav':1, 'Cello.wav':1, 'cowb.wav':-1, 'hitom.wav':-1}
     testSamples = []
     for filename in glob.glob('samples/testset/*.wav'):
         fs, audio = getNormalizedAudio(filename)
@@ -47,8 +48,15 @@ def main():
     testMeta = analyze(testSamples, frame, hop)
 
     for i in range(0, len(featureString)):
+        print(featureString[i] + " ignored:")
         for s in testMeta:
-            print(featureString[i] + " ignored: " + s[3] + " is " + classify(copy.deepcopy(s), KNN, 3, i))
+            klasse = classify(copy.deepcopy(s), KNN, 3, i)
+            name = s[3]
+            isCorrect = map[name] == klasse
+            if isCorrect:
+                print(name + " is classified as " + getClassName(klasse) + ", correct!")
+            else:
+                print(name + " is classified as " + getClassName(klasse) + ", wrong :(")
         print()
 
     # Aufgabe 3
@@ -113,6 +121,13 @@ def classify(sn, knn, k, ignore):
     for i, _ in distances[0:k]:
         klasse += knn[1][int(i)][3]
 
+    if klasse > 0:
+        return 1
+    else:
+        return -1
+
+
+def getClassName(klasse):
     if klasse > 0:
         return "tonal"
     else:
