@@ -3,7 +3,6 @@ import glob
 import scipy.io.wavfile
 import wavio
 import matplotlib.pyplot as plt
-import plotly.plotly as py
 import math
 
 
@@ -80,8 +79,7 @@ def classify(sn, knn, k):
         dist = np.linalg.norm(a - b)
         distances.append([i, dist])
 
-    #distances = np.sort(distances, axis=1)
-    distances.sort( key=lambda x: x[1] )
+    distances.sort(key=lambda x: x[1])
 
     klasse = 0
     for i, _ in distances[0:k]:
