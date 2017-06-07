@@ -10,24 +10,25 @@ def main():
     hop = 512
     frame = 1024
 
-    percs = []
+    samples = []
     for filename in glob.glob('samples/training/perc/*.wav'):
-        percs.append(getNormalizedAudio(filename))
+        fs, audio = getNormalizedAudio(filename)
+        samples.append([fs, audio, 0])
 
-    tonals = []
     for filename in glob.glob('samples/training/tonal/*.wav'):
-        tonals.append(getNormalizedAudio(filename))
+        fs, audio = getNormalizedAudio(filename)
+        samples.append([fs, audio, 1])
 
     # Aufgabe 1
-    percsMeta = training(percs, frame, hop)
-    tonalsMeta = training(tonals, frame, hop)
+    metaŝ = training(samples, frame, hop)
+
 
     return
 
 
 def training(samples, frameSize, hopSize):
     meta = []
-    for fs, sample in samples:
+    for fs, sample, label in samples:
         rolloff = blockwise(sample, frameSize, hopSize, spectralRolloff, [fs])
         centroid = blockwise(sample, frameSize, hopSize, spectralCentroid, [fs])
         flux = blockwise(sample, frameSize, hopSize, spectralFlux)
@@ -35,12 +36,17 @@ def training(samples, frameSize, hopSize):
     return meta
 
 
+
+# def classify(sn, knn, k):
+
+
+
 def getNormalizedAudio(filename: str):
     # read in audio and convert it to normalized floats
     wav = wavio.read(filename)
     audio = wav.data
     fs = wav.rate
-    maxVal = np.iinfo(audio.dtype).max
+    maxVal = np.max(np.abs(audio))
     audio = np.fromiter((s / maxVal for s in audio), dtype=float)
     return fs, audio
 
