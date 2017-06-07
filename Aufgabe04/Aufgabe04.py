@@ -14,7 +14,7 @@ def main():
     samples = []
     for filename in glob.glob('samples/training/perc/*.wav'):
         fs, audio = getNormalizedAudio(filename)
-        samples.append([fs, audio, 0])
+        samples.append([fs, audio, -1])
 
     for filename in glob.glob('samples/training/tonal/*.wav'):
         fs, audio = getNormalizedAudio(filename)
@@ -22,12 +22,12 @@ def main():
 
     # Aufgabe 1
     meta = analyze(samples, frame, hop)
-    metaNormalized = normalize(meta)
+    KNN = normalize(meta)
 
     fig, ax = plt.subplots()
 
-    for s in metaNormalized:
-        if s[3] == 0:
+    for s in KNN[1]:
+        if s[3] == -1:
             marker = None
         else:
             marker = 's'
@@ -36,7 +36,18 @@ def main():
         ax.scatter(s[1], s[2], color='g', marker=marker, alpha=.6)
         ax.scatter(s[0], s[2], color='b', marker=marker, alpha=.6)
 
-    plt.show()
+    #plt.show()
+
+    # Aufgabe 2
+    testSamples = []
+    for filename in glob.glob('samples/testset/*.wav'):
+        fs, audio = getNormalizedAudio(filename)
+        testSamples.append([fs, audio, filename])
+
+    testMeta = analyze(testSamples, frame, hop)
+
+    for s in testMeta:
+        print(classify(s, KNN, 3))
 
     return
 
@@ -52,15 +63,46 @@ def analyze(samples, frameSize, hopSize):
 
 
 
-# def classify(sn, knn, k):
+def classify(sn, knn, k):
+    filename = ""
+    if len(sn) > 3:
+        filename = sn.pop(-1)
+    sn = np.array(sn)
+
+    # normalize with std
+    sn /= knn[0]
+
+    b = np.array((sn[0], sn[2]))
+
+    distances = []
+    for i, elem in enumerate(knn[1]):
+        a = np.array((elem[0], elem[2]))
+        dist = np.linalg.norm(a - b)
+        distances.append([i, dist])
+
+    #distances = np.sort(distances, axis=1)
+    distances.sort( key=lambda x: x[1] )
+
+    klasse = 0
+    for i, _ in distances[0:k]:
+        klasse += knn[1][int(i)][3]
+
+    if klasse > 0:
+        return filename + ": tonal"
+    else:
+        return filename + ": perc"
 
 
 def normalize(v):
     out = list(zip(*v))
+    stds = []
     for i, dimension in enumerate(out):
         if i < 3:
-            out[i] /= np.std(dimension)
-    return list(zip(*out))
+            std = np.std(dimension)
+            out[i] /= std
+            stds.append(std)
+
+    return [np.array(stds), list(zip(*out))]
 
 
 
