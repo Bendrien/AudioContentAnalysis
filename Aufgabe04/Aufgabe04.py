@@ -1,11 +1,9 @@
 import numpy as np
 import glob
-import scipy.io.wavfile
 import wavio
 import matplotlib.pyplot as plt
 import math
 import copy
-
 
 
 def main():
@@ -37,7 +35,7 @@ def main():
         ax.scatter(s[1], s[2], color='g', marker=marker, alpha=.6)
         ax.scatter(s[0], s[2], color='b', marker=marker, alpha=.6)
 
-    #plt.show()
+    plt.show()
 
     # Aufgabe 2
     featureString = ["Rolloff", "Centroid", "Flux", "Nothing"]
@@ -53,6 +51,26 @@ def main():
             print(featureString[i] + " ignored: " + s[3] + " is " + classify(copy.deepcopy(s), KNN, 3, i))
         print()
 
+    # Aufgabe 3
+    first = 0
+    second = 2
+    fig, ax = plt.subplots()
+
+    for s in KNN[1]:
+        if s[3] == -1:
+            marker = None
+        else:
+            marker = 's'
+
+        ax.scatter(s[first], s[second], color='r', marker=marker, alpha=.6)
+
+    for s in testMeta:
+        s[first] /= KNN[0][first]
+        s[second] /= KNN[0][second]
+        ax.scatter(s[first], s[second], color='g', marker='x', alpha=.6)
+
+    plt.show()
+
     return
 
 
@@ -66,7 +84,6 @@ def analyze(samples, frameSize, hopSize):
     return meta
 
 
-
 def classify(sn, knn, k, ignore):
     if len(sn) > 3:
         sn.pop(-1)
@@ -75,7 +92,7 @@ def classify(sn, knn, k, ignore):
     # normalize with std
     sn /= knn[0]
 
-    # remove ingored feature
+    # remove ignored feature
     if ignore < 3:
         sn = np.delete(sn, ignore)
 
