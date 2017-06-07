@@ -46,7 +46,7 @@ def main():
     testMeta = analyze(testSamples, frame, hop)
 
     for s in testMeta:
-        print(classify(s, KNN, 3))
+        print(s[3] + ": " + classify(s, KNN, 3))
 
     return
 
@@ -63,9 +63,8 @@ def analyze(samples, frameSize, hopSize):
 
 
 def classify(sn, knn, k):
-    filename = ""
     if len(sn) > 3:
-        filename = sn.pop(-1)
+        sn.pop(-1)
     sn = np.array(sn)
 
     # normalize with std
@@ -86,9 +85,9 @@ def classify(sn, knn, k):
         klasse += knn[1][int(i)][3]
 
     if klasse > 0:
-        return filename + ": tonal"
+        return "tonal"
     else:
-        return filename + ": perc"
+        return "perc"
 
 
 def normalize(v):
