@@ -14,7 +14,6 @@ def main():
     for filename in glob.glob('samples/training/perc/*.wav'):
         fs, audio = getNormalizedAudio(filename)
         samples.append([fs, audio, -1])
-
     for filename in glob.glob('samples/training/tonal/*.wav'):
         fs, audio = getNormalizedAudio(filename)
         samples.append([fs, audio, 1])
@@ -39,7 +38,7 @@ def main():
 
     # Aufgabe 2
     featureString = ["Rolloff", "Centroid", "Flux", "Nothing"]
-    map = {'sax.wav':1, 'Cello.wav':1, 'cowb.wav':-1, 'hitom.wav':-1}
+    groundTruth = {'sax.wav':1, 'Cello.wav':1, 'cowb.wav':-1, 'hitom.wav':-1}
     testSamples = []
     for filename in glob.glob('samples/testset/*.wav'):
         fs, audio = getNormalizedAudio(filename)
@@ -52,8 +51,7 @@ def main():
         for s in testMeta:
             klasse = classify(copy.deepcopy(s), KNN, 3, i)
             name = s[3]
-            isCorrect = map[name] == klasse
-            if isCorrect:
+            if groundTruth[name] == klasse:
                 print(name + " is classified as " + getClassName(klasse) + ", correct!")
             else:
                 print(name + " is classified as " + getClassName(klasse) + ", wrong :(")
@@ -121,10 +119,7 @@ def classify(sn, knn, k, ignore):
     for i, _ in distances[0:k]:
         klasse += knn[1][int(i)][3]
 
-    if klasse > 0:
-        return 1
-    else:
-        return -1
+    return np.clip(klasse, -1, 1)
 
 
 def getClassName(klasse):
