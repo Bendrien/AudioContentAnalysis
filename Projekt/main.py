@@ -7,9 +7,12 @@ import nimfa
 
 def main():
     frame = 512
-    hop = frame//2
+    hop = frame
 
     fs, audio = getNormalizedAudio("train.wav")
+
+    # plt.figure()
+    # plt.plot(audio)
 
     # calculate spectrum and initialize NMF
     V = np.array(blockwise(audio, frame, hop, getMagnitudeSpectrum))
@@ -42,6 +45,19 @@ def main():
         axarr[1, 1].set_title('W*H')
         axarr[1, 1].xaxis.set_ticks_position('bottom')
 
+    # synthAudio = []
+    # delta = V
+    # for row in delta:
+    #     row = np.squeeze(np.asarray(row))  # transform 1D matrix to array
+    #     synthAudio.extend(np.fft.ifft(row))
+    #
+    # plt.figure()
+    # plt.plot(synthAudio)
+    #
+    # mx = 32767
+    # synthAudio = np.fromiter((s * mx for s in synthAudio), dtype=np.int16)
+    # wavio.write("synth.wav", synthAudio, fs)
+
         plt.show()
 
 
@@ -50,7 +66,7 @@ def main():
 #########################################
 
 
-def getMagnitudeSpectrum(frame, _):
+def getMagnitudeSpectrum(frame):
     return abs(np.fft.rfft(frame))
 
 
@@ -87,7 +103,6 @@ def blockwise(x, frameSize: int, hopSize: int, blockwiseFunction, functionArgs=N
     # calculate the number of blocks
     numberOfFrames = int(math.ceil(len(x) / hopSize))
     output = []
-    previousFrame = np.zeros(frameSize)
 
     if zeroPad:
         numberOfFrames -= 1  # minus 1, because we zero padded
@@ -96,8 +111,7 @@ def blockwise(x, frameSize: int, hopSize: int, blockwiseFunction, functionArgs=N
     for frameCount in range(0, numberOfFrames):
         begin = int(frameCount * hopSize)
         frame = x[begin: begin + frameSize]
-        output.append(blockwiseFunction(frame, previousFrame, *functionArgs))
-        previousFrame = frame
+        output.append(blockwiseFunction(frame, *functionArgs))
 
     return output
 
