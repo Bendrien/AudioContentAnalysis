@@ -10,7 +10,8 @@ def main():
     #hop = frame
 
     #fs, audio = getNormalizedAudio("004_hits_bass-drum_pedal_x6.wav")
-    fs, audio = getNormalizedAudio("045_phrase_rock_simple_medium_sticks.wav")
+    #fs, audio = getNormalizedAudio("045_phrase_rock_simple_medium_sticks.wav")
+    fs, audio = getNormalizedAudio("076_phrase_hard-rock_simple_medium_sticks.wav")
 
     # plt.figure()
     # plt.plot(audio)
@@ -65,8 +66,13 @@ def main():
     plt.show()
 
     Harray = H.A[0]
+
+    plt.figure()
+    plt.plot(Harray)
+    plt.show()
+
     # apply threshold
-    Harray = np.maximum(Harray, 0.9)
+    Harray = np.maximum(Harray, 0.6)
     Harray = np.diff(Harray)
     #Harray[Harray == 0] = np.nan
     #zeroCrossings = np.where(np.diff(np.signbit(Harray)))[0]
@@ -77,9 +83,7 @@ def main():
 
     print(np.array(zeroCrossings) * hop / fs)
 
-    plt.figure()
-    plt.plot(Harray)
-    plt.show()
+
 
 
 
@@ -106,12 +110,24 @@ def getMagnitudeSpectrum(frame):
     return abs(np.fft.rfft(frame))
 
 
+def downmix(audio):
+    output = []
+    for channels in audio:
+        mix = 0
+        for samples in channels:
+            mix += samples
+        mix /= len(channels)
+        output.append(mix)
+    return np.array(output)
+
+
 def getNormalizedAudio(filename: str):
     # read in audio and convert it to normalized floats
     wav = wavio.read(filename)
     audio = wav.data
     fs = wav.rate
     maxVal = np.iinfo(audio.dtype).max
+    audio = downmix(audio)
     audio = np.fromiter((s / maxVal for s in audio), dtype=float)
     return fs, audio
 
