@@ -35,35 +35,53 @@ def main():
     #lsnmf = nimfa.Nmf(V, seed=None, max_iter=20, rank=15)
 
 
-    #for i in range(20):
-    if True:
+    lsnmf_fit = lsnmf.factorize()
+    print(lsnmf_fit.fit.n_iter)
+    W = lsnmf_fit.basis()
+    H = lsnmf_fit.coef()
 
-        lsnmf_fit = lsnmf.factorize()
-        print(lsnmf_fit.fit.n_iter)
-        W = lsnmf_fit.basis()
-        H = lsnmf_fit.coef()
+    f, axarr = plt.subplots(2, 2)
+    plt.subplots_adjust(hspace=0.5)
 
-        f, axarr = plt.subplots(2, 2)
-        plt.subplots_adjust(hspace=0.5)
+    axarr[0, 0].matshow(V, aspect='auto', origin='lower')
+    axarr[0, 0].set_title('Original spectrum')
+    axarr[0, 0].xaxis.set_ticks_position('bottom')
+    print("V: " + str(V.shape))
 
-        axarr[0, 0].matshow(V, aspect='auto', origin='lower')
-        axarr[0, 0].set_title('Original spectrum')
-        axarr[0, 0].xaxis.set_ticks_position('bottom')
-        print("V: " + str(V.shape))
+    axarr[0, 1].matshow(W, aspect='auto', origin='lower')
+    axarr[0, 1].set_title('W')
+    axarr[0, 1].xaxis.set_ticks_position('bottom')
+    print("W: " + str(W.shape))
 
-        axarr[0, 1].matshow(W, aspect='auto', origin='lower')
-        axarr[0, 1].set_title('W')
-        axarr[0, 1].xaxis.set_ticks_position('bottom')
-        print("W: " + str(W.shape))
+    axarr[1, 0].matshow(H, aspect='auto', origin='lower')
+    axarr[1, 0].set_title('H')
+    axarr[1, 0].xaxis.set_ticks_position('bottom')
+    print("H: " + str(H.shape))
 
-        axarr[1, 0].matshow(H, aspect='auto', origin='lower')
-        axarr[1, 0].set_title('H')
-        axarr[1, 0].xaxis.set_ticks_position('bottom')
-        print("H: " + str(H.shape))
+    axarr[1, 1].matshow(W*H, aspect='auto', origin='lower')
+    axarr[1, 1].set_title('W*H')
+    axarr[1, 1].xaxis.set_ticks_position('bottom')
 
-        axarr[1, 1].matshow(W*H, aspect='auto', origin='lower')
-        axarr[1, 1].set_title('W*H')
-        axarr[1, 1].xaxis.set_ticks_position('bottom')
+    plt.show()
+
+    Harray = H.A[0]
+    # apply threshold
+    Harray = np.maximum(Harray, 0.9)
+    Harray = np.diff(Harray)
+    #Harray[Harray == 0] = np.nan
+    #zeroCrossings = np.where(np.diff(np.signbit(Harray)))[0]
+    zeroCrossings = []
+    for x in range(1, len(Harray)):
+        if np.signbit(Harray[x - 1]) < np.signbit(Harray[x]):
+            zeroCrossings.append(x)
+
+    print(np.array(zeroCrossings) * hop / fs)
+
+    plt.figure()
+    plt.plot(Harray)
+    plt.show()
+
+
 
     # synthAudio = []
     # delta = V
@@ -77,8 +95,6 @@ def main():
     # mx = 32767
     # synthAudio = np.fromiter((s * mx for s in synthAudio), dtype=np.int16)
     # wavio.write("synth.wav", synthAudio, fs)
-
-        plt.show()
 
 
 #########################################
