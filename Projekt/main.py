@@ -2,6 +2,7 @@ import pydub as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+import csv
 import nimfa
 
 
@@ -12,6 +13,8 @@ def main():
     #fs, audio = getNormalizedAudio("004_hits_bass-drum_pedal_x6.wav")
     #fs, audio = getNormalizedAudio("045_phrase_rock_simple_medium_sticks.wav")
     fs, audio = getNormalizedAudio("076_phrase_hard-rock_simple_medium_sticks.wav")
+
+    annotations = loadAnnotationFile("076_phrase_hard-rock_simple_medium_sticks.txt", "bd")
 
     # plt.figure()
     # plt.plot(audio)
@@ -153,6 +156,21 @@ def blockwise(x, frameSize: int, hopSize: int, blockwiseFunction, functionArgs=N
         output.append(blockwiseFunction(frame, *functionArgs))
 
     return output
+
+
+def loadAnnotationFile(filename, selector=None):
+    if not isinstance(selector, str):
+        selector = None
+
+    with open(filename) as csvfile:
+        result = []
+        reader = csv.reader(csvfile, delimiter=" ")
+        for row in reader:
+            if selector is not None and row[1] != selector:
+                continue
+            result.append(np.array([row[1], float(row[0])]))
+
+    return np.array(result)
 
 if __name__ == '__main__':
     main()
