@@ -1,5 +1,6 @@
 import pydub as pd
 import numpy as np
+import itertools
 import matplotlib.pyplot as plt
 import math
 import csv
@@ -13,8 +14,10 @@ def main():
     #fs, audio = getNormalizedAudio("004_hits_bass-drum_pedal_x6.wav")
     #fs, audio = getNormalizedAudio("045_phrase_rock_simple_medium_sticks.wav")
     fs, audio = getNormalizedAudio("076_phrase_hard-rock_simple_medium_sticks.wav")
+    #fs, audio = getNormalizedAudio("096_phrase_reggae_complex_fast_sticks.wav")
 
     annotations = loadAnnotationFile("076_phrase_hard-rock_simple_medium_sticks.txt", "bd")
+    #annotations = loadAnnotationFile("045_phrase_rock_simple_medium_sticks.txt", "bd")
 
     # plt.figure()
     # plt.plot(audio)
@@ -71,7 +74,13 @@ def main():
     Harray = H.A[0]
 
     # apply threshold
-    Harray = np.maximum(Harray, 0.6)
+    Harray = Harray / max(Harray)
+
+    plt.figure()
+    plt.plot(Harray)
+    plt.show()
+
+    Harray = np.maximum(Harray, 2/3)
     Harray = np.diff(Harray)
 
     #Harray[Harray == 0] = np.nan
@@ -81,7 +90,16 @@ def main():
         if np.signbit(Harray[x - 1]) < np.signbit(Harray[x]):
             zeroCrossings.append(x)
 
-    print(np.array(zeroCrossings) * hop / fs)
+    times = (np.array(zeroCrossings) * hop / fs)
+    results = np.array(list(map(lambda t: ['bd', t], times)))
+
+
+
+    epsilon = hop / fs
+    for [an, at], [rn, rt] in zip(annotations, results):
+        diff = abs(float(at) - float(rt))
+        print(an + " " + at + ":\t" + str(diff <= epsilon) + "\tdiff: " + str(diff))
+    
 
 
     # synthAudio = []
@@ -111,7 +129,7 @@ def getNormalizedAudio(filename: str):
     audio = pd.AudioSegment.from_wav(filename)
     # downmix to mono
     if audio.channels > 1:
-        audio.set_channels(1)
+        audio = audio.set_channels(1)
     samples = np.array(audio.get_array_of_samples())
     fs = pd.utils.mediainfo(filename)['sample_rate']
 
