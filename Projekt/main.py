@@ -1,5 +1,5 @@
+import pydub as pd
 import numpy as np
-import wavio
 import matplotlib.pyplot as plt
 import math
 import nimfa
@@ -67,13 +67,10 @@ def main():
 
     Harray = H.A[0]
 
-    plt.figure()
-    plt.plot(Harray)
-    plt.show()
-
     # apply threshold
     Harray = np.maximum(Harray, 0.6)
     Harray = np.diff(Harray)
+
     #Harray[Harray == 0] = np.nan
     #zeroCrossings = np.where(np.diff(np.signbit(Harray)))[0]
     zeroCrossings = []
@@ -82,9 +79,6 @@ def main():
             zeroCrossings.append(x)
 
     print(np.array(zeroCrossings) * hop / fs)
-
-
-
 
 
     # synthAudio = []
@@ -110,26 +104,19 @@ def getMagnitudeSpectrum(frame):
     return abs(np.fft.rfft(frame))
 
 
-def downmix(audio):
-    output = []
-    for channels in audio:
-        mix = 0
-        for samples in channels:
-            mix += samples
-        mix /= len(channels)
-        output.append(mix)
-    return np.array(output)
-
-
 def getNormalizedAudio(filename: str):
-    # read in audio and convert it to normalized floats
-    wav = wavio.read(filename)
-    audio = wav.data
-    fs = wav.rate
-    maxVal = np.iinfo(audio.dtype).max
-    audio = downmix(audio)
-    audio = np.fromiter((s / maxVal for s in audio), dtype=float)
-    return fs, audio
+    audio = pd.AudioSegment.from_wav(filename)
+    # downmix to mono
+    if audio.channels > 1:
+        audio.set_channels(1)
+    samples = np.array(audio.get_array_of_samples())
+    fs = pd.utils.mediainfo(filename)['sample_rate']
+
+    # normilze to range [-1, 1]
+    maxVal = np.iinfo(samples.dtype).max
+    samples = np.fromiter((s / maxVal for s in samples), dtype=float)
+
+    return int(fs), samples
 
 
 # x:                 Audio samples (list like)
