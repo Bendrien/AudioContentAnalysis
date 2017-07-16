@@ -6,20 +6,37 @@ import nimfa
 
 
 def main():
-    frame = 512
-    hop = frame
+    #frame = 4096
+    #hop = frame
 
-    fs, audio = getNormalizedAudio("train.wav")
+    #fs, audio = getNormalizedAudio("004_hits_bass-drum_pedal_x6.wav")
+    fs, audio = getNormalizedAudio("045_phrase_rock_simple_medium_sticks.wav")
 
     # plt.figure()
     # plt.plot(audio)
 
-    # calculate spectrum and initialize NMF
-    V = np.array(blockwise(audio, frame, hop, getMagnitudeSpectrum))
-    V = V.transpose()
-    lsnmf = nimfa.Lsnmf(V, max_iter=20, rank=3)
+    fs, baseDrum = getNormalizedAudio("base_drum.wav")
+    #W1 = np.matrix(blockwise(baseDrum, frame, hop, getMagnitudeSpectrum))
+    W1 = np.matrix(getMagnitudeSpectrum(baseDrum[0:1024]))
+    W1 = W1.transpose()
+    print("W: " + str(W1.shape))
 
-    for i in range(20):
+    # calculate spectrum and initialize NMF
+    frame = 1024
+    hop = frame // 2
+    V = np.matrix(blockwise(audio, frame, hop, getMagnitudeSpectrum))
+    V = V.transpose()
+    print("V: " + str(V.shape))
+
+    H1 = np.matrix(np.random.rand(W1.shape[1], V.shape[1]))
+    print("H: " + str(H1.shape))
+
+    lsnmf = nimfa.Nmf(V, W=W1, H=H1, seed=None, max_iter=20, rank=30)
+    #lsnmf = nimfa.Nmf(V, seed=None, max_iter=20, rank=15)
+
+
+    #for i in range(20):
+    if True:
 
         lsnmf_fit = lsnmf.factorize()
         print(lsnmf_fit.fit.n_iter)
@@ -32,14 +49,17 @@ def main():
         axarr[0, 0].matshow(V, aspect='auto', origin='lower')
         axarr[0, 0].set_title('Original spectrum')
         axarr[0, 0].xaxis.set_ticks_position('bottom')
+        print("V: " + str(V.shape))
 
         axarr[0, 1].matshow(W, aspect='auto', origin='lower')
         axarr[0, 1].set_title('W')
         axarr[0, 1].xaxis.set_ticks_position('bottom')
+        print("W: " + str(W.shape))
 
         axarr[1, 0].matshow(H, aspect='auto', origin='lower')
         axarr[1, 0].set_title('H')
         axarr[1, 0].xaxis.set_ticks_position('bottom')
+        print("H: " + str(H.shape))
 
         axarr[1, 1].matshow(W*H, aspect='auto', origin='lower')
         axarr[1, 1].set_title('W*H')
