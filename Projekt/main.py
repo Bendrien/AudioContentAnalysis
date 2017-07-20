@@ -6,80 +6,104 @@ import math
 import csv
 import nimfa
 
+from os import listdir
+from os import path
+
 
 def main():
-    #frame = 4096
-    #hop = frame
+    # setup the file directories
+    audioPath = "../../ENST-drums-public/drummer_2/audio/wet_mix/"
+    annotationPath = "../../ENST-drums-public/drummer_2/annotation/"
 
-    #fs, audio = getNormalizedAudio("004_hits_bass-drum_pedal_x6.wav")
-    #fs, audio = getNormalizedAudio("045_phrase_rock_simple_medium_sticks.wav")
-    fs, audio = getNormalizedAudio("076_phrase_hard-rock_simple_medium_sticks.wav")
-    #fs, audio = getNormalizedAudio("096_phrase_reggae_complex_fast_sticks.wav")
+    # get all audio file names
+    allAudioFiles = [f for f in listdir(audioPath) if path.isfile(path.join(audioPath, f)) and f.endswith(".wav")]
+    # load the bass drum template
+    fs, template = getNormalizedAudio("base_drum.wav")
+    numberOfAnalyzedTracks = 0
 
-    annotations = loadAnnotationFile("076_phrase_hard-rock_simple_medium_sticks.txt", "bd")
-    #annotations = loadAnnotationFile("045_phrase_rock_simple_medium_sticks.txt", "bd")
+    for audioFile in allAudioFiles:
+        # load annotations
+        filename = path.splitext(audioFile)[0]
+        annotations = loadAnnotationFile(annotationPath + filename + ".txt", "bd")
 
-    # plt.figure()
-    # plt.plot(audio)
+        # check if the files contains bass drums
+        if annotations.size == 0:
+            # otherwise skip the track
+            continue
 
-    fs, baseDrum = getNormalizedAudio("base_drum.wav")
-    #W1 = np.matrix(blockwise(baseDrum, frame, hop, getMagnitudeSpectrum))
-    W1 = np.matrix(getMagnitudeSpectrum(baseDrum[0:1024]))
-    W1 = W1.transpose()
-    print("W: " + str(W1.shape))
+        # load the audio data
+        fs, audio = getNormalizedAudio(audioPath + audioFile)
 
-    # calculate spectrum and initialize NMF
+        # find the bass drums
+        print("Analyzing track: " + filename)
+        findTemplate(audio, template, annotations, fs)
+
+        numberOfAnalyzedTracks += 1
+        if numberOfAnalyzedTracks > 10:
+            break
+
+
+def findTemplate(audio, template, annotations, fs):
     frame = 1024
     hop = frame // 2
+
+    # setup the W matrix with the template spectrum
+    W1 = np.matrix(getMagnitudeSpectrum(template[0:frame]))
+    W1 = W1.transpose()
+    #print("W: " + str(W1.shape))
+
+    # setup the v matrix with the audio spectrum
     V = np.matrix(blockwise(audio, frame, hop, getMagnitudeSpectrum))
     V = V.transpose()
-    print("V: " + str(V.shape))
+    #print("V: " + str(V.shape))
 
+    # setup the H matrix with random numbers
     H1 = np.matrix(np.random.rand(W1.shape[1], V.shape[1]))
-    print("H: " + str(H1.shape))
+    #print("H: " + str(H1.shape))
 
+    # initialize the NMF
     lsnmf = nimfa.Nmf(V, W=W1, H=H1, seed=None, max_iter=20, rank=30)
     #lsnmf = nimfa.Nmf(V, seed=None, max_iter=20, rank=15)
 
-
+    # do the NMF and get its results
     lsnmf_fit = lsnmf.factorize()
-    print(lsnmf_fit.fit.n_iter)
+    print("NMF iterations: " + str(lsnmf_fit.fit.n_iter))
     W = lsnmf_fit.basis()
     H = lsnmf_fit.coef()
 
-    f, axarr = plt.subplots(2, 2)
-    plt.subplots_adjust(hspace=0.5)
+    # f, axarr = plt.subplots(2, 2)
+    # plt.subplots_adjust(hspace=0.5)
+    #
+    # axarr[0, 0].matshow(V, aspect='auto', origin='lower')
+    # axarr[0, 0].set_title('Original spectrum')
+    # axarr[0, 0].xaxis.set_ticks_position('bottom')
+    # print("V: " + str(V.shape))
+    #
+    # axarr[0, 1].matshow(W, aspect='auto', origin='lower')
+    # axarr[0, 1].set_title('W')
+    # axarr[0, 1].xaxis.set_ticks_position('bottom')
+    # print("W: " + str(W.shape))
+    #
+    # axarr[1, 0].matshow(H, aspect='auto', origin='lower')
+    # axarr[1, 0].set_title('H')
+    # axarr[1, 0].xaxis.set_ticks_position('bottom')
+    # print("H: " + str(H.shape))
+    #
+    # axarr[1, 1].matshow(W*H, aspect='auto', origin='lower')
+    # axarr[1, 1].set_title('W*H')
+    # axarr[1, 1].xaxis.set_ticks_position('bottom')
+    #
+    # plt.show()
 
-    axarr[0, 0].matshow(V, aspect='auto', origin='lower')
-    axarr[0, 0].set_title('Original spectrum')
-    axarr[0, 0].xaxis.set_ticks_position('bottom')
-    print("V: " + str(V.shape))
-
-    axarr[0, 1].matshow(W, aspect='auto', origin='lower')
-    axarr[0, 1].set_title('W')
-    axarr[0, 1].xaxis.set_ticks_position('bottom')
-    print("W: " + str(W.shape))
-
-    axarr[1, 0].matshow(H, aspect='auto', origin='lower')
-    axarr[1, 0].set_title('H')
-    axarr[1, 0].xaxis.set_ticks_position('bottom')
-    print("H: " + str(H.shape))
-
-    axarr[1, 1].matshow(W*H, aspect='auto', origin='lower')
-    axarr[1, 1].set_title('W*H')
-    axarr[1, 1].xaxis.set_ticks_position('bottom')
-
-    plt.show()
-
+    # convert H from a matrix to an normalized array
     Harray = H.A[0]
-
-    # apply threshold
     Harray = Harray / max(Harray)
 
-    plt.figure()
-    plt.plot(Harray)
-    plt.show()
+    # plt.figure()
+    # plt.plot(Harray)
+    # plt.show()
 
+    # apply threshold
     Harray = np.maximum(Harray, 2/3)
     Harray = np.diff(Harray)
 
