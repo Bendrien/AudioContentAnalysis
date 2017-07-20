@@ -5,22 +5,25 @@ import matplotlib.pyplot as plt
 import math
 import csv
 import nimfa
+import unicodedata
 
 from os import listdir
 from os import path
 
 
 def main():
+    # load the bass drum template
+    fs, template = getNormalizedAudio("base_drum.wav")
+
     # setup the file directories
-    audioPath = "../../ENST-drums-public/drummer_2/audio/wet_mix/"
-    annotationPath = "../../ENST-drums-public/drummer_2/annotation/"
+    audioPath = u"../../ENST-drums-public/drummer_2/audio/wet_mix/"
+    annotationPath = u"../../ENST-drums-public/drummer_2/annotation/"
 
     # get all audio file names
     allAudioFiles = [f for f in listdir(audioPath) if path.isfile(path.join(audioPath, f)) and f.endswith(".wav")]
-    # load the bass drum template
-    fs, template = getNormalizedAudio("base_drum.wav")
-    numberOfAnalyzedTracks = 0
 
+    percentages = []
+    numberOfAnalyzedTracks = 0
     for audioFile in allAudioFiles:
         # load annotations
         filename = path.splitext(audioFile)[0]
@@ -36,11 +39,18 @@ def main():
 
         # find the bass drums
         print("Analyzing track: " + filename)
-        findTemplate(audio, template, annotations, fs)
+        result = findTemplate(audio, template, annotations, fs)
+        positives = count_positives(result)
+        percentages.append(positives / annotations[:,0].size)
 
         numberOfAnalyzedTracks += 1
-        if numberOfAnalyzedTracks > 10:
-            break
+        #if numberOfAnalyzedTracks > 10:
+        #    break
+
+    print(percentages)
+    print("Median:\t" + str(np.median(percentages)))
+    print("Mean:\t" + str(np.mean(percentages)))
+    print("Standart Deviation:\t" + str(np.std(percentages)))
 
 
 def findTemplate(audio, template, annotations, fs):
@@ -118,15 +128,8 @@ def findTemplate(audio, template, annotations, fs):
     data = np.array(list(map(lambda t: ['bd', t], times)))
 
 
-
     epsilon = hop / fs
-    # for [an, at], [rn, rt] in zip(annotations, results):
-    #     diff = abs(float(at) - float(rt))
-    #     print(an + " " + at + ":\t" + str(diff <= epsilon) + "\tdiff: " + str(diff))
-
-    #print(data[:,1])
-    result = compare_times(annotations[:,1], data[:,1], epsilon)
-    print(result)
+    return compare_times(annotations[:,1], data[:,1], epsilon)
 
     # synthAudio = []
     # delta = V
@@ -146,13 +149,18 @@ def findTemplate(audio, template, annotations, fs):
 ### Helper functions
 #########################################
 
+
+def count_positives(data):
+    return np.count_nonzero(data[:,0] == '0')
+
+
 class Compare:
     LOWER = -1
     EQUAL = 0
     UPPER = 1
 
 def compare_times(groundtruth, data, epsilon):
-    # [gt_time, data_time, cmp
+    # [cmp, gt_time, data_time, diff]
     result = []
 
     groundtruth_iter = iter(groundtruth)
@@ -162,7 +170,7 @@ def compare_times(groundtruth, data, epsilon):
     for gt_time in groundtruth_iter:
         while True:
             cmp, diff = compare(gt_time, data_time, epsilon)
-            result.append([gt_time, data_time, cmp, diff])
+            result.append([cmp, gt_time, data_time, diff])
 
             if cmp == Compare.LOWER:
                 break
@@ -175,7 +183,7 @@ def compare_times(groundtruth, data, epsilon):
                     data_time = next(data_iter)
             except StopIteration as e:
                 for gt_time in groundtruth_iter:
-                    result.append([gt_time, -1, -1, -1])
+                    result.append([-1, gt_time, -1, -1])
                 return np.array(result)
 
     return np.array(result)
