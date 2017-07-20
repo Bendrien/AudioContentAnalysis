@@ -23,6 +23,7 @@ def main():
     allAudioFiles = [f for f in listdir(audioPath) if path.isfile(path.join(audioPath, f)) and f.endswith(".wav")]
 
     percentages = []
+    trackNames = []
     numberOfAnalyzedTracks = 0
     for audioFile in allAudioFiles:
         # load annotations
@@ -41,13 +42,16 @@ def main():
         print("Analyzing track: " + filename)
         result = findTemplate(audio, template, annotations, fs)
         positives = count_positives(result)
-        percentages.append(positives / annotations[:,0].size)
+        percentages.append(positives / annotations[:, 0].size)
+        trackNames.append(filename)
 
         numberOfAnalyzedTracks += 1
         #if numberOfAnalyzedTracks > 10:
         #    break
 
-    print(percentages)
+    print(list(zip(trackNames, percentages)))
+    print("\n")
+    print("Number of analyzed files: " + str(numberOfAnalyzedTracks))
     print("Median:\t" + str(np.median(percentages)))
     print("Mean:\t" + str(np.mean(percentages)))
     print("Standart Deviation:\t" + str(np.std(percentages)))
@@ -77,7 +81,7 @@ def findTemplate(audio, template, annotations, fs):
 
     # do the NMF and get its results
     lsnmf_fit = lsnmf.factorize()
-    print("NMF iterations: " + str(lsnmf_fit.fit.n_iter))
+    #print("NMF iterations: " + str(lsnmf_fit.fit.n_iter))
     W = lsnmf_fit.basis()
     H = lsnmf_fit.coef()
 
