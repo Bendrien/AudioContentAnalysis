@@ -46,10 +46,10 @@ def main():
         trackNames.append(filename)
 
         numberOfAnalyzedTracks += 1
-        #if numberOfAnalyzedTracks > 10:
+        #if numberOfAnalyzedTracks > 5:
         #    break
 
-    print(list(zip(trackNames, percentages)))
+    print(np.array(sorted(zip(percentages, trackNames))))
     print("\n")
     print("Number of analyzed files: " + str(numberOfAnalyzedTracks))
     print("Median:\t" + str(np.median(percentages)))
