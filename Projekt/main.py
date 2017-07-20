@@ -115,16 +115,18 @@ def findTemplate(audio, template, annotations, fs):
             zeroCrossings.append(x)
 
     times = (np.array(zeroCrossings) * hop / fs)
-    results = np.array(list(map(lambda t: ['bd', t], times)))
+    data = np.array(list(map(lambda t: ['bd', t], times)))
 
 
 
     epsilon = hop / fs
-    for [an, at], [rn, rt] in zip(annotations, results):
-        diff = abs(float(at) - float(rt))
-        print(an + " " + at + ":\t" + str(diff <= epsilon) + "\tdiff: " + str(diff))
-    
+    # for [an, at], [rn, rt] in zip(annotations, results):
+    #     diff = abs(float(at) - float(rt))
+    #     print(an + " " + at + ":\t" + str(diff <= epsilon) + "\tdiff: " + str(diff))
 
+    #print(data[:,1])
+    result = compare_times(annotations[:,1], data[:,1], epsilon)
+    print(result)
 
     # synthAudio = []
     # delta = V
@@ -144,6 +146,53 @@ def findTemplate(audio, template, annotations, fs):
 ### Helper functions
 #########################################
 
+class Compare:
+    LOWER = -1
+    EQUAL = 0
+    UPPER = 1
+
+def compare_times(groundtruth, data, epsilon):
+    # [gt_time, data_time, cmp
+    result = []
+
+    groundtruth_iter = iter(groundtruth)
+    data_iter = iter(data)
+    data_time = next(data_iter)
+
+    for gt_time in groundtruth_iter:
+        while True:
+            cmp, diff = compare(gt_time, data_time, epsilon)
+            result.append([gt_time, data_time, cmp, diff])
+
+            if cmp == Compare.LOWER:
+                break
+
+            try:
+                if cmp == Compare.EQUAL:
+                    data_time = next(data_iter)
+                    break
+                elif cmp == Compare.UPPER:
+                    data_time = next(data_iter)
+            except StopIteration as e:
+                for gt_time in groundtruth_iter:
+                    result.append([gt_time, -1, -1, -1])
+                return np.array(result)
+
+    return np.array(result)
+
+
+def compare(a, b, epsilon):
+    diff = float(a) - float(b)
+    diff_abs = abs(diff)
+
+    if diff_abs <= epsilon:
+        return Compare.EQUAL, diff_abs
+    if diff < 0.0:
+        return Compare.LOWER, diff_abs
+
+    return Compare.UPPER, diff_abs
+
+
 
 def getMagnitudeSpectrum(frame):
     return abs(np.fft.rfft(frame))
@@ -155,6 +204,7 @@ def getNormalizedAudio(filename: str):
     if audio.channels > 1:
         audio = audio.set_channels(1)
     samples = np.array(audio.get_array_of_samples())
+
     fs = pd.utils.mediainfo(filename)['sample_rate']
 
     # normilze to range [-1, 1]
