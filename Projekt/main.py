@@ -31,6 +31,7 @@ def main():
 
     percentages = []
     trackNames = []
+    results = []
     numberOfAnalyzedTracks = 0
     for audioFile in allAudioFiles:
         # load annotations
@@ -51,12 +52,18 @@ def main():
         positives = count_positives(result)
         percentages.append(positives / annotations[:, 0].size)
         trackNames.append(filename)
+        results.append(result)
+
+        file = open("../../Results/" + filename + ".txt", "w")
+        file.write(str(result))
+        file.close()
 
         numberOfAnalyzedTracks += 1
-        #if numberOfAnalyzedTracks > 5:
+        #if numberOfAnalyzedTracks > 1:
         #    break
 
-    print(np.array(sorted(zip(percentages, trackNames))))
+    print(sorted(zip(percentages, trackNames)))
+
     print("\n")
     print("Number of analyzed files: " + str(numberOfAnalyzedTracks))
     print("Median:\t" + str(np.median(percentages)))
