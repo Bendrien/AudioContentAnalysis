@@ -22,7 +22,7 @@ def main():
     # plt.show()
 
     # setup the file directories
-    drummer = 3
+    drummer = 2
     audioPath = u"../../ENST-drums-public/drummer_" + str(drummer) + "/audio/wet_mix/"
     annotationPath = u"../../ENST-drums-public/drummer_" + str(drummer) + "/annotation/"
 
@@ -30,7 +30,9 @@ def main():
     allAudioFiles = [f for f in listdir(audioPath) if path.isfile(path.join(audioPath, f)) and f.endswith(".wav")]
     #allAudioFiles = ["045_phrase_rock_simple_medium_sticks.wav"]
 
-    percentages = []
+    positives = []
+    false_positives = []
+
     trackNames = []
     results = []
     numberOfAnalyzedTracks = 0
@@ -50,8 +52,8 @@ def main():
         # find the bass drums
         print("Analyzing track: " + filename)
         result = findTemplate(audio, template, annotations, fs)
-        positives = count_positives(result)
-        percentages.append(positives / annotations[:, 0].size)
+        positives.append(count_positives(result) / annotations[:, 0].size)
+        false_positives.append((count_false_positives(result) + count_overflow(result)) / result[:, 0].size)
         trackNames.append(filename)
         results.append(result)
 
@@ -60,15 +62,34 @@ def main():
         file.close()
 
         numberOfAnalyzedTracks += 1
-        #if numberOfAnalyzedTracks > 10: break
+        #if numberOfAnalyzedTracks > 1: break
 
-    file = open("../../Results/Drummer_" + str(drummer) + "/Results_" + str(drummer) + ".txt", "w")
-    file.write("Number of analyzed files: " + str(numberOfAnalyzedTracks))
-    file.write("\nMedian:\t" + str(np.median(percentages)))
-    file.write("\nMean:\t" + str(np.mean(percentages)))
-    file.write("\nStandart Deviation:\t" + str(np.std(percentages)))
+    file = open("../../Results/Drummer_" + str(drummer) + "/Results_" + str(drummer) + ".md", "w")
+
+    file.write("# Results\n")
     file.write("\n")
-    file.write(str(np.array(sorted(zip(percentages, trackNames)))))
+
+    file.write("Number of analyzed files: " + str(numberOfAnalyzedTracks))
+    file.write("\n")
+
+    file.write("\n### Positives")
+    file.write("\nMedian:\t" + str(np.median(positives)))
+    file.write("\nMean:\t" + str(np.mean(positives)))
+    file.write("\nStandart Deviation:\t" + str(np.std(positives)))
+    file.write("\n")
+
+    file.write("\n### False Positives")
+    file.write("\nMedian:\t" + str(np.median(false_positives)))
+    file.write("\nMean:\t" + str(np.mean(false_positives)))
+    file.write("\nStandart Deviation:\t" + str(np.std(false_positives)))
+    file.write("\n")
+
+    file.write("\n### Positives Data\n")
+    file.write(str(np.array(sorted(zip(positives, trackNames)))))
+
+    file.write("\n")
+    file.write("\n### False Positives Data\n")
+    file.write(str(np.array(sorted(zip(false_positives, trackNames)))))
     file.close()
 
 
@@ -185,6 +206,18 @@ def count_positives(data):
     return np.count_nonzero(data[:,0] == '0')
 
 
+def count_false_positives(data):
+    neg = np.count_nonzero(data[:,0] == '1')
+    pos = np.count_nonzero(data[:,0] == '-1')
+    return neg + pos
+
+def count_underflow(data):
+    return np.count_nonzero(data[:,0] == '2')
+
+def count_overflow(data):
+    return np.count_nonzero(data[:,0] == '3')
+
+
 class Compare:
     LOWER = -1
     EQUAL = 0
@@ -222,10 +255,15 @@ def compare_times(groundtruth, data, epsilon):
                 elif cmp == Compare.UPPER:
                     data_time = next(data_iter)
             except StopIteration as e:
+                # are some left in the groundtrouth?
                 for gt_time in groundtruth_iter:
-                    result.append([-1, gt_time, -1, -1])
+                    result.append([2, gt_time, -1, -1])
                 return np.array(result)
 
+
+    # are some left in the data?
+    for data_time in data_iter:
+        result.append([3, -1, data_time, -1])
     return np.array(result)
 
 
