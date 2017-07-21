@@ -22,7 +22,7 @@ def main():
     # plt.show()
 
     # setup the file directories
-    drummer = 1
+    drummer = 3
     audioPath = u"../../ENST-drums-public/drummer_" + str(drummer) + "/audio/wet_mix/"
     annotationPath = u"../../ENST-drums-public/drummer_" + str(drummer) + "/annotation/"
 
@@ -64,9 +64,9 @@ def main():
 
     file = open("../../Results/Drummer_" + str(drummer) + "/Results_" + str(drummer) + ".txt", "w")
     file.write("Number of analyzed files: " + str(numberOfAnalyzedTracks))
-    file.write("Median:\t" + str(np.median(percentages)))
-    file.write("Mean:\t" + str(np.mean(percentages)))
-    file.write("Standart Deviation:\t" + str(np.std(percentages)))
+    file.write("\nMedian:\t" + str(np.median(percentages)))
+    file.write("\nMean:\t" + str(np.mean(percentages)))
+    file.write("\nStandart Deviation:\t" + str(np.std(percentages)))
     file.write("\n")
     file.write(str(np.array(sorted(zip(percentages, trackNames)))))
     file.close()
