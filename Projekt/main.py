@@ -2,6 +2,7 @@ import pydub as pd
 import numpy as np
 import itertools
 import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
 import math
 import csv
 import nimfa
@@ -15,12 +16,18 @@ def main():
     # load the bass drum template
     fs, template = getNormalizedAudio("base_drum.wav")
 
+    plt.plot(template)
+    plt.axvspan(0, 1024, color='red', alpha=0.5)
+    plt.savefig("BassdrumTemplate.pdf")
+    plt.show()
+
     # setup the file directories
     audioPath = u"../../ENST-drums-public/drummer_2/audio/wet_mix/"
     annotationPath = u"../../ENST-drums-public/drummer_2/annotation/"
 
     # get all audio file names
     allAudioFiles = [f for f in listdir(audioPath) if path.isfile(path.join(audioPath, f)) and f.endswith(".wav")]
+    allAudioFiles = ["045_phrase_rock_simple_medium_sticks.wav"]
 
     percentages = []
     trackNames = []
@@ -88,9 +95,10 @@ def findTemplate(audio, template, annotations, fs):
     # f, axarr = plt.subplots(2, 2)
     # plt.subplots_adjust(hspace=0.5)
     #
-    # axarr[0, 0].matshow(V, aspect='auto', origin='lower')
+    # axarr[0, 0].matshow(V, aspect='auto', origin='lower', norm=LogNorm(vmin=0.01, vmax=1))
     # axarr[0, 0].set_title('Original spectrum')
     # axarr[0, 0].xaxis.set_ticks_position('bottom')
+    # #axarr[0, 0].colorbar(im, cax=axcolor, ticks=t, format='$%.2f$')
     # print("V: " + str(V.shape))
     #
     # axarr[0, 1].matshow(W, aspect='auto', origin='lower')
@@ -103,23 +111,34 @@ def findTemplate(audio, template, annotations, fs):
     # axarr[1, 0].xaxis.set_ticks_position('bottom')
     # print("H: " + str(H.shape))
     #
-    # axarr[1, 1].matshow(W*H, aspect='auto', origin='lower')
+    # axarr[1, 1].matshow(W*H, aspect='auto', origin='lower', norm=LogNorm(vmin=0.01, vmax=1))
     # axarr[1, 1].set_title('W*H')
     # axarr[1, 1].xaxis.set_ticks_position('bottom')
     #
+    # plt.savefig("MatrixOverview.pdf")
     # plt.show()
 
     # convert H from a matrix to an normalized array
     Harray = H.A[0]
     Harray = Harray / max(Harray)
 
+    thresholdline = np.empty_like(Harray)
+    thresholdline.fill(2/3)
+
     # plt.figure()
+    # plt.plot(thresholdline, color='r')
     # plt.plot(Harray)
+    # plt.savefig("ActivationMatrix.pdf")
     # plt.show()
 
     # apply threshold
     Harray = np.maximum(Harray, 2/3)
     Harray = np.diff(Harray)
+
+    # plt.figure()
+    # plt.plot(Harray)
+    # plt.savefig("ZeroCrosses.pdf")
+    # plt.show()
 
     #Harray[Harray == 0] = np.nan
     #zeroCrossings = np.where(np.diff(np.signbit(Harray)))[0]
@@ -133,7 +152,7 @@ def findTemplate(audio, template, annotations, fs):
 
 
     epsilon = hop / fs
-    return compare_times(annotations[:,1], data[:,1], epsilon)
+    return compare_times(annotations[:, 1], data[:, 1], epsilon)
 
     # synthAudio = []
     # delta = V
