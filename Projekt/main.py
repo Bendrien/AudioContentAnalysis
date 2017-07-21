@@ -6,28 +6,29 @@ from matplotlib.colors import LogNorm
 import math
 import csv
 import nimfa
-import unicodedata
 
 from os import listdir
 from os import path
 
 
 def main():
+
     # load the bass drum template
     fs, template = getNormalizedAudio("base_drum.wav")
 
-    plt.plot(template)
-    plt.axvspan(0, 1024, color='red', alpha=0.5)
-    plt.savefig("BassdrumTemplate.pdf")
-    plt.show()
+    # plt.plot(template)
+    # plt.axvspan(0, 1024, color='red', alpha=0.5)
+    # plt.savefig("BassdrumTemplate.pdf")
+    # plt.show()
 
     # setup the file directories
-    audioPath = u"../../ENST-drums-public/drummer_2/audio/wet_mix/"
-    annotationPath = u"../../ENST-drums-public/drummer_2/annotation/"
+    drummer = 1
+    audioPath = u"../../ENST-drums-public/drummer_" + str(drummer) + "/audio/wet_mix/"
+    annotationPath = u"../../ENST-drums-public/drummer_" + str(drummer) + "/annotation/"
 
     # get all audio file names
     allAudioFiles = [f for f in listdir(audioPath) if path.isfile(path.join(audioPath, f)) and f.endswith(".wav")]
-    allAudioFiles = ["045_phrase_rock_simple_medium_sticks.wav"]
+    #allAudioFiles = ["045_phrase_rock_simple_medium_sticks.wav"]
 
     percentages = []
     trackNames = []
@@ -54,21 +55,21 @@ def main():
         trackNames.append(filename)
         results.append(result)
 
-        file = open("../../Results/" + filename + ".txt", "w")
+        file = open("../../Results/Drummer_" + str(drummer) + "/" + filename + ".txt", "w")
         file.write(str(result))
         file.close()
 
         numberOfAnalyzedTracks += 1
-        #if numberOfAnalyzedTracks > 1:
-        #    break
+        #if numberOfAnalyzedTracks > 10: break
 
-    print(sorted(zip(percentages, trackNames)))
-
-    print("\n")
-    print("Number of analyzed files: " + str(numberOfAnalyzedTracks))
-    print("Median:\t" + str(np.median(percentages)))
-    print("Mean:\t" + str(np.mean(percentages)))
-    print("Standart Deviation:\t" + str(np.std(percentages)))
+    file = open("../../Results/Drummer_" + str(drummer) + "/Results_" + str(drummer) + ".txt", "w")
+    file.write("Number of analyzed files: " + str(numberOfAnalyzedTracks))
+    file.write("Median:\t" + str(np.median(percentages)))
+    file.write("Mean:\t" + str(np.mean(percentages)))
+    file.write("Standart Deviation:\t" + str(np.std(percentages)))
+    file.write("\n")
+    file.write(sorted(zip(percentages, trackNames)))
+    file.close()
 
 
 def findTemplate(audio, template, annotations, fs):
@@ -200,7 +201,16 @@ def compare_times(groundtruth, data, epsilon):
     for gt_time in groundtruth_iter:
         while True:
             cmp, diff = compare(gt_time, data_time, epsilon)
-            result.append([cmp, gt_time, data_time, diff])
+
+            if len(result) == 0:
+                result.append([cmp, gt_time, data_time, diff])
+            else:
+                prev_cmp, prev_gt_time, prev_data_time, prev_diff = result[-1]
+                if prev_cmp == Compare.EQUAL:
+                    result.append([cmp, gt_time, data_time, diff])
+                elif diff < prev_diff:
+                    result.pop()
+                    result.append([cmp, gt_time, data_time, diff])
 
             if cmp == Compare.LOWER:
                 break
@@ -245,7 +255,7 @@ def getNormalizedAudio(filename: str):
 
     fs = pd.utils.mediainfo(filename)['sample_rate']
 
-    # normilze to range [-1, 1]
+    # normailze to range [-1, 1]
     maxVal = np.iinfo(samples.dtype).max
     samples = np.fromiter((s / maxVal for s in samples), dtype=float)
 
