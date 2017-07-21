@@ -68,7 +68,7 @@ def main():
     file.write("Mean:\t" + str(np.mean(percentages)))
     file.write("Standart Deviation:\t" + str(np.std(percentages)))
     file.write("\n")
-    file.write(sorted(zip(percentages, trackNames)))
+    file.write(str(np.array(sorted(zip(percentages, trackNames)))))
     file.close()
 
 
