@@ -4,6 +4,7 @@
 % --------------------------------------------------------------------------
 \documentclass{article}
 \usepackage{spconf,amsmath,graphicx}
+\usepackage{blindtext}
 
 % Example definitions.
 % --------------------
@@ -62,6 +63,92 @@ Non-Negative Matrixfactorization, Drums, Profit
 %
 \section{Introduction}
 \label{sec:intro}
+
+context, problem, use cases
+definitions
+paper overview
+
+% section intro (end)
+
+
+\section{Related work}
+\label{sec:rel}
+
+literature review, state of the art
+
+% section rel (end)
+
+
+\section{algorithm overview and description}
+\label{sec:algo}
+
+\blindtext
+
+% section algo (end)
+
+
+\section{Evaluation}
+\label{sec:evaluation}
+
+ground truth, methodology, metrics
+results
+discussion
+
+% section evaluation (end)
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+summary, noteworthy parts of the presented work,
+achievements and contributions
+possible improvements and future work
+
+% section conclusion (end)
+
+% References should be produced using the bibtex program from suitable
+% BiBTeX files (here: strings, refs, manuals). The IEEEbib.bst bibliography
+% style file from IEEE produces unsorted bibliography list.
+% -------------------------------------------------------------------------
+\bibliographystyle{IEEEbib}
+\bibliography{strings,refs}
+
+%\end{document}
+
+
+% DELETE EVERYTHING FROM HERE IN THE END
+% DELETE EVERYTHING FROM HERE IN THE END
+% DELETE EVERYTHING FROM HERE IN THE END
+
+\vfill\pagebreak
+
+\section{common flaws}
+all cited papers should appear in bibliography
+vice versa: all references should be mentioned in the paper
+each reference should contain:
+names of authors
+title of the paper or book
+conference paper: name of conf. incl. year and location
+journal paper: name of journal incl. volume, year and pages
+book: publisher, potentially editor
+all figures and tables must be referenced in the paper
+equations:
+all mathematical symbols must be explained
+symbols should be used consistently and unambiguously
+abbreviations (STFT, DFT, etc.) should be introduced
+”The short-time Fourier transform (STFT) is given by (. . .)
+We compute the STFT of the signal, (. . .)”
+
+\section{Evaluation}
+
+form (structure, language, form of references)
+content (introduction, literature review, algorithm and
+evaluation description, figures, comprehensibility, correctness)
+evaluation (dataset, metrics, discussion)
+
+\vfill\pagebreak
+~
+\vfill\pagebreak
 
 These guidelines include complete descriptions of the fonts, spacing, and
 related information for producing your proceedings manuscripts. Please follow
@@ -258,12 +345,5 @@ brackets as shown at the end of this sentence \cite{C2}. An
 additional final page (the fifth page, in most cases) is
 allowed, but must contain only references to the prior
 literature.
-
-% References should be produced using the bibtex program from suitable
-% BiBTeX files (here: strings, refs, manuals). The IEEEbib.bst bibliography
-% style file from IEEE produces unsorted bibliography list.
-% -------------------------------------------------------------------------
-\bibliographystyle{IEEEbib}
-\bibliography{strings,refs}
 
 \end{document}
