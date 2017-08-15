@@ -68,25 +68,22 @@ For this research paper we looked into the topic of generating a drum transcript
 Drum transcription is considered a classical music information retrieval (MIR) problem, where you want to extract information from a mixed piece of music.
 In order to achieve this an algorithm is applied to the raw sound data to find the time points where a drum event happens in the song.
 This list of time points and a corresponding flag with the kind of the drum event is called the drum transcription. 
-While in theory this can be used to find any kind of percussive event within a musical piece, we focused mainly on base drum hits in our research.
+While in theory this can be used to find any kind of event within a musical piece, we focused mainly on basic drum sounds in our research.
 
 The transcription of the drum track of a song can be useful in many cases.
 The simplest would be to generate the sheet music for a song where the original has been lost or is not available.
 It can also be used for more sophisticated use cases like a conversion of a audio file to a MIDI sequence (known as Audio-to-MIDI).
-For syncing visuals to music in VJing or light show applications (Sound-to-Light) a drum transcription is also a integral part.
+For syncing visuals to music in VJing or light show applications (Sound-to-Light) a drum transcription is also an integral part.
 Furthermore the drum transcription of a song can be used as a basis for more complicated MIR analysis.
-For example using the results of the drum transcription a Beats per Minute (BPM) detection can be build, which in turn can then be the basis of a tempo detection algorithm. [QUELLE]
+For example using the results of the drum transcription a Beats per Minute (BPM) detection can be build, which in turn can then be the basis of a tempo detection algorithm [QUELLE].
 Overall the drum transcription of a song is a basic but versatile information, that can be used in many different applications.
 
 
 On first sight extracting the time point of a drum hit for a polyphonic, mixed piece of music sounds like a difficult task.
 In fact though there are multiple mathematically simple algorithm to achieve that.
 For this research we took an algorithm commonly used for these kind of problems: the non-negative matrix factorization (NMF).
-NMF is in its essence a pattern matching algorithm.
-It decomposes the magnitude spectrum of a song into two matrices.
-The first one contains the magnitude spectra of the individual components and the second one contains the time-varying gain of these components, which tells us when each of the components for the first matrix is active.
-The sum of both matrices makes up an approximation of the original spectrum. \cite{virtanen2007}
 
+In section \ref{sec:algo} there will be a detailed explanation of how NMF works.
 
 context, problem, use cases
 definitions
@@ -109,6 +106,12 @@ It can for example be used to recognize parts of a face, find semantic features 
 
 \section{algorithm overview and description}
 \label{sec:algo}
+
+NMF is in its essence a pattern matching algorithm.
+It decomposes the magnitude spectrum of a song into two matrices.
+The first one contains the magnitude spectra of the individual components we are interested in and the second one contains the time-varying gain of these components, which tells us when each of the components for the first matrix is active.
+The sum of both matrices makes up an approximation of the original spectrum. \cite{virtanen2007}
+
 
 basic NMF description, our peak picking algorithm, maybe libs used
 
