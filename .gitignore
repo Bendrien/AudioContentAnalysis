@@ -2,5 +2,32 @@
 .idea/
 */.idea/
 
+# Floobits
 node_modules
 .floo*
+
+# Latex
+*.aux
+*.bbl
+*.blg
+*.bcf
+*.dvi
+*.log
+*.toc
+*.tps
+*.run.xml
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.asc
+
+*.bib.bak
+*.bib.sav
+
+*-eps-converted-to.pdf
+Latex/*/main.pdf
+*.out
+
+# TexMaker files
+*.synctex.gz
