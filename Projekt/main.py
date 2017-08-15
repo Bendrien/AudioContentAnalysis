@@ -16,19 +16,21 @@ def main():
     # load the bass drum template
     fs, template = getNormalizedAudio("base_drum.wav")
 
-    # plt.plot(template)
-    # plt.axvspan(0, 1024, color='red', alpha=0.5)
-    # plt.savefig("BassdrumTemplate.pdf")
-    # plt.show()
+    plt.plot(template)
+    plt.axvspan(0, 1024, color='red', alpha=0.5)
+    plt.xlabel("Sample")
+    plt.ylabel("Amplitude")
+    plt.savefig("BassdrumTemplate.pdf")
+    plt.show()
 
     # setup the file directories
-    drummer = 2
+    drummer = 1
     audioPath = u"../../ENST-drums-public/drummer_" + str(drummer) + "/audio/wet_mix/"
     annotationPath = u"../../ENST-drums-public/drummer_" + str(drummer) + "/annotation/"
 
     # get all audio file names
-    allAudioFiles = [f for f in listdir(audioPath) if path.isfile(path.join(audioPath, f)) and f.endswith(".wav")]
-    #allAudioFiles = ["045_phrase_rock_simple_medium_sticks.wav"]
+    #allAudioFiles = [f for f in listdir(audioPath) if path.isfile(path.join(audioPath, f)) and f.endswith(".wav")]
+    allAudioFiles = ["045_phrase_rock_simple_medium_sticks.wav"]
 
     positives = []
     false_positives = []
