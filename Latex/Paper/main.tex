@@ -58,11 +58,35 @@ in black ink.
 \end{abstract}
 %
 \begin{keywords}
-Non-Negative Matrixfactorization, Drums, Profit
+Non-Negative Matrix Factorization, Drum Transcription, Profit
 \end{keywords}
 %
 \section{Introduction}
 \label{sec:intro}
+
+For this research paper we looked into the topic of generating a drum transcription from a piece of music containing a recording of a drum kit.
+Drum transcription is considered a classical music information retrieval (MIR) problem, where you want to extract information from a mixed piece of music.
+In order to achieve this an algorithm is applied to the raw sound data to find the time points where a drum event happens in the song.
+This list of time points and a corresponding flag with the kind of the drum event is called the drum transcription. 
+While in theory this can be used to find any kind of percussive event within a musical piece, we focused mainly on base drum hits in our research.
+
+The transcription of the drum track of a song can be useful in many cases.
+The simplest would be to generate the sheet music for a song where the original has been lost or is not available.
+It can also be used for more sophisticated use cases like a conversion of a audio file to a MIDI sequence (known as Audio-to-MIDI).
+For syncing visuals to music in VJing or light show applications (Sound-to-Light) a drum transcription is also a integral part.
+Furthermore the drum transcription of a song can be used as a basis for more complicated MIR analysis.
+For example using the results of the drum transcription a Beats per Minute (BPM) detection can be build, which in turn can then be the basis of a tempo detection algorithm. [QUELLE]
+Overall the drum transcription of a song is a basic but versatile information, that can be used in many different applications.
+
+
+On first sight extracting the time point of a drum hit for a polyphonic, mixed piece of music sounds like a difficult task.
+In fact though there are multiple mathematically simple algorithm to achieve that.
+For this research we took an algorithm commonly used for these kind of problems: the non-negative matrix factorization (NMF).
+NMF is in its essence a pattern matching algorithm.
+It decomposes the magnitude spectrum of a song into two matrices.
+The first one contains the magnitude spectra of the individual components and the second one contains the time-varying gain of these components, which tells us when each of the components for the first matrix is active.
+The sum of both matrices makes up an approximation of the original spectrum. \cite{virtanen2007}
+
 
 context, problem, use cases
 definitions
@@ -76,13 +100,17 @@ paper overview
 
 literature review, state of the art
 
+The idea to use NMF for pattern recognition was first proposed by Lee and Seung in 1999 \cite{lee1999}.
+As described in their paper NMF is a versatile technique to find features in a data set.
+It can for example be used to recognize parts of a face, find semantic features in text or certain events in a piece of music.
+
 % section rel (end)
 
 
 \section{algorithm overview and description}
 \label{sec:algo}
 
-\blindtext
+basic NMF description, our peak picking algorithm, maybe libs used
 
 % section algo (end)
 
@@ -252,7 +280,7 @@ black-only printer.
 
 Since there are many ways, often incompatible, of including images (e.g., with
 experimental results) in a LaTeX document, below is an example of how to do
-this \cite{Lamp86}.
+this.
 
 \section{FOOTNOTES}
 \label{sec:foot}
@@ -325,8 +353,8 @@ or takes a different path from the prior studies. An example might
 read something to the effect: "The work presented here has focused
 on the formulation of the ABC algorithm, which takes advantage of
 non-uniform time-frequency domain analysis of data. The work by
-Smith and Cohen \cite{Lamp86} considers only fixed time-domain analysis and
-the work by Jones et al \cite{C2} takes a different approach based on
+Smith and Cohen considers only fixed time-domain analysis and
+the work by Jones et al takes a different approach based on
 fixed frequency partitioning. While the present study is related
 to recent approaches in time-frequency analysis [3-5], it capitalizes
 on a new feature space, which was not considered in these earlier
@@ -341,7 +369,7 @@ List and number all bibliographical references at the end of the
 paper. The references can be numbered in alphabetic order or in
 order of appearance in the document. When referring to them in
 the text, type the corresponding reference number in square
-brackets as shown at the end of this sentence \cite{C2}. An
+brackets as shown at the end of this sentence. An
 additional final page (the fifth page, in most cases) is
 allowed, but must contain only references to the prior
 literature.
