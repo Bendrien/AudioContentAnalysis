@@ -14,83 +14,102 @@ from os import path
 def main():
 
     # load the bass drum template
-    fs, template = getNormalizedAudio("base_drum.wav")
+    fs, bdTemplate = getNormalizedAudio("base_drum.wav")
 
-    plt.plot(template)
-    plt.axvspan(0, 1024, color='red', alpha=0.5)
-    plt.xlabel("Sample")
-    plt.ylabel("Amplitude")
-    plt.savefig("BassdrumTemplate.pdf")
-    plt.show()
+    # plt.plot(template)
+    # plt.axvspan(0, 1024, color='red', alpha=0.5)
+    # plt.xlabel("Sample")
+    # plt.ylabel("Amplitude")
+    # plt.savefig("BassdrumTemplate.pdf")
+    # plt.show()
 
-    # setup the file directories
-    drummer = 1
-    audioPath = u"../../ENST-drums-public/drummer_" + str(drummer) + "/audio/wet_mix/"
-    annotationPath = u"../../ENST-drums-public/drummer_" + str(drummer) + "/annotation/"
+    data = [[2, "bd", bdTemplate], [2, "chh", bdTemplate]]
+    for drummer, drumName, template in data:
 
-    # get all audio file names
-    #allAudioFiles = [f for f in listdir(audioPath) if path.isfile(path.join(audioPath, f)) and f.endswith(".wav")]
-    allAudioFiles = ["045_phrase_rock_simple_medium_sticks.wav"]
+        # setup the file directories
+        audioPath = u"../../ENST-drums-public/drummer_" + str(drummer) + "/audio/wet_mix/"
+        annotationPath = u"../../ENST-drums-public/drummer_" + str(drummer) + "/annotation/"
 
-    positives = []
-    false_positives = []
+        # get all audio file names
+        allAudioFiles = [f for f in listdir(audioPath) if path.isfile(path.join(audioPath, f)) and f.endswith(".wav")]
 
-    trackNames = []
-    results = []
-    numberOfAnalyzedTracks = 0
-    for audioFile in allAudioFiles:
-        # load annotations
-        filename = path.splitext(audioFile)[0]
-        annotations = loadAnnotationFile(annotationPath + filename + ".txt", "bd")
+        print("Transcripting: " + drumName + " of drummer " + str(drummer) + "\n=============")
 
-        # check if the files contains bass drums
-        if annotations.size == 0:
-            # otherwise skip the track
-            continue
+        positives = []
+        false_positives = []
+        trackNames = []
+        numberOfAnalyzedTracks = 0
 
-        # load the audio data
-        fs, audio = getNormalizedAudio(audioPath + audioFile)
+        for audioFile in allAudioFiles:
 
-        # find the bass drums
-        print("Analyzing track: " + filename)
-        result = findTemplate(audio, template, annotations, fs)
-        positives.append(count_positives(result) / annotations[:, 0].size)
-        false_positives.append((count_false_positives(result) + count_overflow(result)) / result[:, 0].size)
-        trackNames.append(filename)
-        results.append(result)
+            # load annotations
+            filename = path.splitext(audioFile)[0]
+            annotations = loadAnnotationFile(annotationPath + filename + ".txt", drumName)
 
-        file = open("../../Results/Drummer_" + str(drummer) + "/" + filename + ".txt", "w")
-        file.write(str(result))
-        file.close()
+            # check if the file contains the drum sound
+            if annotations.size == 0:
+                # otherwise skip the track
+                continue
 
-        numberOfAnalyzedTracks += 1
-        #if numberOfAnalyzedTracks > 1: break
+            print("Analyzing track: " + filename)
 
-    file = open("../../Results/Drummer_" + str(drummer) + "/Results_" + str(drummer) + ".md", "w")
+            # load the audio data
+            fs, audio = getNormalizedAudio(audioPath + audioFile)
 
-    file.write("# Results\n")
+            # find the drum sound
+            result = findTemplate(audio, template, annotations, fs)
+
+            # write results
+            resultFilename = "../../Results/Drummer_" + str(drummer) + "/" + filename + "_" + drumName + ".txt"
+            # print("Writing individual results to \"" + filename + "\"")
+            file = open(resultFilename, "w")
+            file.write(str(result))
+            file.close()
+
+            # remember statistics
+            positives.append(count_positives(result) / annotations[:, 0].size)
+            false_positives.append((count_false_positives(result) + count_overflow(result)) / result[:, 0].size)
+            trackNames.append(filename)
+
+            # count analyzed tracks
+            numberOfAnalyzedTracks += 1
+            if numberOfAnalyzedTracks > 1: break
+
+        writeResults(drummer, drumName, numberOfAnalyzedTracks, positives, false_positives, trackNames)
+        print("\n")
+
+
+
+def writeResults(drummer, drumName, numberOfAnalyzedTracks, positives, false_positives, trackNames):
+    filename = "../../Results/Drummer_" + str(drummer) + "/Results_Drummer_" + str(drummer) + "_" + drumName + ".md"
+    print("Writing overall results to \"" + filename + "\"")
+    file = open(filename, "w")
+
+    file.write("# Results")
+    file.write("\nDrummer:\t" + str(drummer))
+    file.write("\nDrumsound:\t" + str(drumName))
+    file.write("\nNumber of analyzed files: " + str(numberOfAnalyzedTracks))
     file.write("\n")
 
-    file.write("Number of analyzed files: " + str(numberOfAnalyzedTracks))
-    file.write("\n")
-
-    file.write("\n### Positives")
+    file.write("\n## Positives")
+    file.write("\nCount:\t" + str(np.size(positives)))
     file.write("\nMedian:\t" + str(np.median(positives)))
     file.write("\nMean:\t" + str(np.mean(positives)))
-    file.write("\nStandart Deviation:\t" + str(np.std(positives)))
+    file.write("\nStandard Deviation:\t" + str(np.std(positives)))
     file.write("\n")
 
-    file.write("\n### False Positives")
+    file.write("\n## False Positives")
+    file.write("\nCount:\t" + str(np.size(false_positives)))
     file.write("\nMedian:\t" + str(np.median(false_positives)))
     file.write("\nMean:\t" + str(np.mean(false_positives)))
-    file.write("\nStandart Deviation:\t" + str(np.std(false_positives)))
+    file.write("\nStandard Deviation:\t" + str(np.std(false_positives)))
     file.write("\n")
 
-    file.write("\n### Positives Data\n")
+    file.write("\n## Positives Data\n")
     file.write(str(np.array(sorted(zip(positives, trackNames)))))
 
     file.write("\n")
-    file.write("\n### False Positives Data\n")
+    file.write("\n## False Positives Data\n")
     file.write(str(np.array(sorted(zip(false_positives, trackNames)))))
     file.close()
 
@@ -205,68 +224,103 @@ def findTemplate(audio, template, annotations, fs):
 
 
 def count_positives(data):
-    return np.count_nonzero(data[:,0] == '0')
-
+    return np.count_nonzero(data[:,0] == str(Result.EQUAL))
 
 def count_false_positives(data):
-    neg = np.count_nonzero(data[:,0] == '1')
-    pos = np.count_nonzero(data[:,0] == '-1')
+    neg = np.count_nonzero(data[:,0] == str(Result.LOWER))
+    pos = np.count_nonzero(data[:,0] == str(Result.UPPER))
     return neg + pos
 
 def count_underflow(data):
-    return np.count_nonzero(data[:,0] == '2')
+    return np.count_nonzero(data[:,0] == str(Result.UNDERFLOW))
 
 def count_overflow(data):
-    return np.count_nonzero(data[:,0] == '3')
+    return np.count_nonzero(data[:,0] == str(Result.OVERFLOW))
 
 
-class Compare:
+class Result:
+
+    # There are more detected events then annotated
+    UNDERFLOW = -2
+
+    # A detetcted value lies under its annotation.
     LOWER = -1
+
+    # A value equals its corresponding annotation
     EQUAL = 0
+
+    # A detetcted value lies over its annotation.
     UPPER = 1
 
+    # There are more annotated events then detetcted
+    OVERFLOW = 2
+
+
+# NOTE: For this function to work both datasets (groundtruth and data) need to be in ascending order!
 def compare_times(groundtruth, data, epsilon):
-    # [cmp, gt_time, data_time, diff]
-    result = []
+    # [result, gt_time, data_time, diff]
+    results = []
 
     groundtruth_iter = iter(groundtruth)
     data_iter = iter(data)
     data_time = next(data_iter)
 
+    # simultaneously advance the ground truth and the data iterator
     for gt_time in groundtruth_iter:
         while True:
-            cmp, diff = compare(gt_time, data_time, epsilon)
+            result, diff = compare(gt_time, data_time, epsilon)
 
-            if len(result) == 0:
-                result.append([cmp, gt_time, data_time, diff])
+            # if its the first result
+            if len(results) == 0:
+                # just append it
+                results.append([result, gt_time, data_time, diff])
+
             else:
-                prev_cmp, prev_gt_time, prev_data_time, prev_diff = result[-1]
-                if prev_cmp == Compare.EQUAL:
-                    result.append([cmp, gt_time, data_time, diff])
-                elif diff < prev_diff:
-                    result.pop()
-                    result.append([cmp, gt_time, data_time, diff])
+                # compare with previous result
+                prev_cmp, prev_gt_time, prev_data_time, prev_diff = results[-1]
 
-            if cmp == Compare.LOWER:
+                # if the previous result was a match
+                if prev_cmp == Result.EQUAL:
+                    # ignore it and just continue with the current one
+                    results.append([result, gt_time, data_time, diff])
+
+                # if the accurancy of the previous result wasn't as good as the current one (then two not corresponding values where compared)
+                elif diff < prev_diff:
+                    # so just pop the last result because its not meaningful.
+                    results.pop()
+                    results.append([result, gt_time, data_time, diff])
+
+            # if the result was marked as LOWER
+            if result == Result.LOWER:
+                # just advance the ground truth iterator by leaving the inner loop
                 break
 
+            # try to advance the data iterator
             try:
-                if cmp == Compare.EQUAL:
+                # if we got a match
+                if result == Result.EQUAL:
+                    # advance the data iterator
                     data_time = next(data_iter)
+                    # also advance the ground truth iterator by leaving the inner loop
                     break
-                elif cmp == Compare.UPPER:
+
+                # if the result was marked as UPPER
+                elif result == Result.UPPER:
+                    # just advance the data iterator
                     data_time = next(data_iter)
+
+            # if we couldn't advance the data iterator (because its empty)
             except StopIteration as e:
-                # are some left in the groundtrouth?
+                # check for all left values in the ground truth iterator
                 for gt_time in groundtruth_iter:
-                    result.append([2, gt_time, -1, -1])
-                return np.array(result)
+                    results.append([Result.UNDERFLOW, gt_time, -1, -1])
+                return np.array(results)
 
-
-    # are some left in the data?
+    # are some values left in the data iterator?
     for data_time in data_iter:
-        result.append([3, -1, data_time, -1])
-    return np.array(result)
+        results.append([Result.OVERFLOW, -1, data_time, -1])
+
+    return np.array(results)
 
 
 def compare(a, b, epsilon):
@@ -274,11 +328,11 @@ def compare(a, b, epsilon):
     diff_abs = abs(diff)
 
     if diff_abs <= epsilon:
-        return Compare.EQUAL, diff_abs
+        return Result.EQUAL, diff_abs
     if diff < 0.0:
-        return Compare.LOWER, diff_abs
+        return Result.LOWER, diff_abs
 
-    return Compare.UPPER, diff_abs
+    return Result.UPPER, diff_abs
 
 
 
