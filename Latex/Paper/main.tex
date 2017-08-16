@@ -78,8 +78,7 @@ Overall the drum transcription of a song is a basic but versatile information, t
 On first sight extracting the time point of a drum hit for a polyphonic, mixed piece of music sounds like a difficult task.
 In fact though there are multiple mathematically simple algorithm to achieve that.
 For this research we took an algorithm commonly used for these kind of problems: the non-negative matrix factorization (NMF).
-
-In section \ref{sec:algo} there will be a detailed explanation of how NMF works.
+Section \ref{sec:algo} will show a detailed explanation of how the NMF works.
 
 
 \noindent\makebox[\linewidth]{\rule{\linewidth}{0.4pt}}
@@ -103,7 +102,14 @@ konkrete Anwendungen.
 
 The idea to use NMF for pattern recognition was first proposed by Lee and Seung in 1999 \cite{lee1999}.
 As described in their paper NMF is a versatile technique to find features in a data set.
-It can for example be used to recognize parts of a face, find semantic features in text or certain events in a piece of music.
+Lee and Seung proposed in their paper that it can be used to recognize parts in faces, find semantic features in texts or find certain musical events in a piece of music.
+During the last decade NMF was researched and applied in all the fields they mentioned and many more.
+
+In the field of music information retrieval NMF has also been used in a variety of applications.
+Most notable are the fields of source separation and music transcription.
+For source separation the goal is to separate a piece of music containing a mix of multiple sound sources into the their components.
+Virtanen \cite{virtanen2007} has researched this topic among many others.
+
 
 \noindent\makebox[\linewidth]{\rule{\linewidth}{0.4pt}}
 literature review, state of the art
@@ -119,11 +125,50 @@ eine weitere thematische Eingrenzung sowie mögliche methodische Ansätze.
 \section{algorithm overview and description}
 \label{sec:algo}
 
-NMF is in its essence a pattern matching algorithm.
-It decomposes the magnitude spectrum of a song into two matrices.
-The first one contains the magnitude spectra of the individual components we are interested in and the second one contains the time-varying gain of these components, which tells us when each of the components for the first matrix is active.
-The sum of both matrices makes up an approximation of the original spectrum. \cite{virtanen2007}
+As mentioned before we used a non-negative matrix factorization to extract the time points of drum events from a drum track.
+Generally speaking the NMF factorizes a matrix (usually called $\mathbf{V}$) into two smaller matrices (usually called $\mathbf{W}$ and $\mathbf{H}$) with the constraint that every matrix element must be non-negative.
+In turn the sum of $\mathbf{W}$ and $\mathbf{H}$ is an approximation of $\mathbf{V}$ (see figure \ref{fig:NMF}).
 
+\begin{figure}[htb]
+
+\begin{minipage}[b]{1.0\linewidth}
+  \centering
+  \centerline{\includegraphics[width=8.5cm]{figures/NMF}}
+%  \vspace{2.0cm}
+  \medskip
+\end{minipage}
+
+\caption{Matrix $\mathbf{V}$ can be factorized into two matrices $\mathbf{W}$ and $\mathbf{H}$, so that their sum approximates $\mathbf{V}$. \scriptsize{\textcopyright WikiMedia CC BY-SA 3.0}}
+\label{fig:NMF}
+
+\end{figure}
+
+In our case we use the magnitude spectrum of a song as the $\mathbf{V}$ matrix and decomposed it into two matrices.
+The first one contains the magnitude spectra of the individual components we are interested in ($\mathbf{W}$) and the second one contains the time-varying gain of these components ($\mathbf{H}$), which tells us when each of the components for the first matrix is active.
+For that reason the $\mathbf{W}$ matrix is usually called component matrix and $\mathbf{H}$ is usually called activation matrix.
+Again the sum of both of these matrices makes up an approximation of the original spectrum \cite{smaragdis2003}.
+A visual representation of that can be seen in figure \ref{fig:MatrixOverview} (d).
+
+For our use case we were not interested in finding all the components and their activations.
+We were rather interested in finding the corresponding activation of a specific component, like that of a base drum or a hi-hat.
+This is also possible using NMF.
+In order to do so, we specified $\mathbf{W}$ as the spectrum of a base drum and $\mathbf{V}$ continued to be the spectrum of the whole song.
+The NMF then solves for the matrix $\mathbf{H}$ which tells at what point in time the specified base drum spectrum appears in the song.
+In that setup the NMF essentially works as a pattern matching algorithm.
+
+\begin{figure}[htb]
+
+\begin{minipage}[b]{1.0\linewidth}
+  \centering
+  \centerline{\includegraphics[width=8.5cm]{figures/MatrixOverview}}
+%  \vspace{2.0cm}
+  \medskip
+\end{minipage}
+
+\caption{(a) Magnitude spectrum of a drum track. (b) Magnitude spectrum of a base drum. (c) Activation matrix of the base drum. (d) Approximated spectrum. \scriptsize{\textcopyright Own work CC BY-SA 3.0}}
+\label{fig:MatrixOverview}
+
+\end{figure}
 
 basic NMF description, our peak picking algorithm, maybe libs used
 
@@ -136,6 +181,8 @@ basic NMF description, our peak picking algorithm, maybe libs used
 ground truth, methodology, metrics
 results
 discussion
+
+- we only uses drum tracks, but it also works with mixed music. problem: ground truth
 
 % section evaluation (end)
 

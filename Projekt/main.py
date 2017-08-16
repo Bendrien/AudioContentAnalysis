@@ -142,30 +142,37 @@ def findTemplate(audio, template, annotations, fs):
     W = lsnmf_fit.basis()
     H = lsnmf_fit.coef()
 
+    # uncomment the following block for a overview plot of the NMF matrices
+
     # f, axarr = plt.subplots(2, 2)
     # plt.subplots_adjust(hspace=0.5)
     #
     # axarr[0, 0].matshow(V, aspect='auto', origin='lower', norm=LogNorm(vmin=0.01, vmax=1))
-    # axarr[0, 0].set_title('Original spectrum')
+    # axarr[0, 0].set_title('(a) Original spectrum')
     # axarr[0, 0].xaxis.set_ticks_position('bottom')
     # #axarr[0, 0].colorbar(im, cax=axcolor, ticks=t, format='$%.2f$')
-    # print("V: " + str(V.shape))
     #
     # axarr[0, 1].matshow(W, aspect='auto', origin='lower')
-    # axarr[0, 1].set_title('W')
+    # axarr[0, 1].set_title('(b) W')
     # axarr[0, 1].xaxis.set_ticks_position('bottom')
-    # print("W: " + str(W.shape))
+    # # hacky way to get only 0 and 1 as x labels
+    # axarr[0, 1].set_xlim([0, 0.5])
+    # axarr[0, 1].set_xticklabels([0, 1], fontdict=None, minor=False)
+    # axarr[0, 1].locator_params(axis='x', nbins=2)
     #
     # axarr[1, 0].matshow(H, aspect='auto', origin='lower')
-    # axarr[1, 0].set_title('H')
+    # axarr[1, 0].set_title('(c) H')
     # axarr[1, 0].xaxis.set_ticks_position('bottom')
-    # print("H: " + str(H.shape))
+    # # hacky way to get only 0 and 1 as y labels
+    # axarr[1, 0].set_ylim([0, 0.5])
+    # axarr[1, 0].set_yticklabels([0, 1], fontdict=None, minor=False)
+    # axarr[1, 0].locator_params(axis='y', nbins=2)
     #
     # axarr[1, 1].matshow(W*H, aspect='auto', origin='lower', norm=LogNorm(vmin=0.01, vmax=1))
-    # axarr[1, 1].set_title('W*H')
+    # axarr[1, 1].set_title('(d) W*H')
     # axarr[1, 1].xaxis.set_ticks_position('bottom')
     #
-    # plt.savefig("MatrixOverview.pdf")
+    # plt.savefig("MatrixOverview.pdf", bbox_inches='tight')
     # plt.show()
 
     # convert H from a matrix to an normalized array
