@@ -212,12 +212,12 @@ An example of the representation of the matrix $\mathbf{H}$ as a curve can be se
 
 \begin{minipage}[b]{1.0\linewidth}
   \centering
-  \centerline{\includegraphics[width=8.5cm]{figures/ActivationMatrix}}
+  \centerline{\includegraphics[width=6.7cm]{figures/ActivationMatrix}}
 %  \vspace{2.0cm}
   \medskip
 \end{minipage}
 
-\caption{Example of the representation of an activation matrix as a curve. \scriptsize{\textsf{\textcopyright} Own work CC BY-SA 3.0}}
+\caption{Example of the representation of an activation matrix as a curve. With a red line marking the threshold. \scriptsize{\textsf{\textcopyright} Own work CC BY-SA 3.0}}
 \label{fig:ActivationMatrix}
 
 \end{figure}
@@ -226,10 +226,12 @@ The next step of the algorithm is called onset detection where the exact time po
 The onset detection is a simple implementation loosely based on the algorithms described by Lerch \cite{lerch2012book} in chapter 6.3.
 To extract the onsets of the drum events the significant local maxima of the curve (peaks) have to be detected.
 In order to do that the curve is first normalized.
-Afterwards a threshold of $\frac{2}{3}$ is applied.
+Afterwards a threshold of $\frac{2}{3}$ is applied, which can be seen as a red line in figure \ref{fig:ActivationMatrix}.
 This value was establish empirically to separate the valid detection from false positives.
 Then the first derivative, which represents the slope of the curve, is calculated, by subtracting each element from the previous one.
 An example of the resulting curve can be found in figure \ref{fig:Ableitung}.
+% TODO: zero crossings, transfrom from frame back to time, mention error range do to frame
+
 
 \begin{figure}[htb]
 

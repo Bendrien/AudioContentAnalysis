@@ -185,7 +185,7 @@ def findTemplate(audio, template, annotations, fs):
     # plt.figure()
     # plt.plot(thresholdline, color='r')
     # plt.plot(Harray)
-    # plt.savefig("ActivationMatrix.pdf")
+    # plt.savefig("ActivationMatrix.pdf", bbox_inches='tight')
     # plt.show()
 
     # apply threshold
@@ -194,7 +194,7 @@ def findTemplate(audio, template, annotations, fs):
 
     # plt.figure()
     # plt.plot(Harray)
-    # plt.savefig("ZeroCrosses.pdf")
+    # plt.savefig("ZeroCrosses.pdf", bbox_inches='tight')
     # plt.show()
 
     #Harray[Harray == 0] = np.nan
