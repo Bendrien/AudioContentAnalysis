@@ -5,6 +5,7 @@
 \documentclass{article}
 \usepackage{spconf,amsmath,graphicx}
 \usepackage{blindtext}
+\usepackage[utf8]{inputenc}
 
 % Example definitions.
 % --------------------
@@ -108,7 +109,13 @@ During the last decade NMF was researched and applied in all the fields they men
 In the field of music information retrieval NMF has also been used in a variety of applications.
 Most notable are the fields of source separation and music transcription.
 For source separation the goal is to separate a piece of music containing a mix of multiple sound sources into the their components.
-Virtanen \cite{virtanen2007} has researched this topic among many others.
+T. Virtanen \cite{virtanen2007} among many others has researched this topic.
+
+In the field of music transcription NMF has also been used for different topics.
+Smaragdis and Brown \cite{smaragdis2003} used NMF to analyze and extract polyphonic, harmonic content from a piece of music.
+In the sub-field of drum transcription there has also been some research in the recent years.
+Paulus and Virtanen \cite{paulus2005} as well as Moreau and Flexer \cite{moreau2007} as well as Wu and Lerch \cite{wu2015} have all shown that NMF is a technique that can be well applied to the problem of finding the time points of percussive events in music.
+
 
 
 \noindent\makebox[\linewidth]{\rule{\linewidth}{0.4pt}}
@@ -125,8 +132,8 @@ literature review, state of the art
 \section{algorithm overview and description}
 \label{sec:algo}
 
-As mentioned before we used a non-negative matrix factorization to extract the time points of drum events from a drum track.
-Generally speaking the NMF factorizes a matrix (usually called $\mathbf{V}$) into two smaller matrices (usually called $\mathbf{W}$ and $\mathbf{H}$) with the constraint that every matrix element must be non-negative.
+As mentioned above we used a non-negative matrix factorization to extract the time points of drum events from a drum track.
+In general terms the NMF factorizes a matrix (usually called $\mathbf{V}$) into two smaller matrices (usually called $\mathbf{W}$ and $\mathbf{H}$) with the constraint that every matrix element must be non-negative.
 In turn the sum of $\mathbf{W}$ and $\mathbf{H}$ is an approximation of $\mathbf{V}$ (see figure \ref{fig:NMF}).
 
 \begin{figure}[htb]
@@ -138,7 +145,7 @@ In turn the sum of $\mathbf{W}$ and $\mathbf{H}$ is an approximation of $\mathbf
   \medskip
 \end{minipage}
 
-\caption{Matrix $\mathbf{V}$ can be factorized into two matrices $\mathbf{W}$ and $\mathbf{H}$, so that their sum approximates $\mathbf{V}$. \scriptsize{\textcopyright WikiMedia CC BY-SA 3.0}}
+\caption{Matrix $\mathbf{V}$ can be factorized into two matrices $\mathbf{W}$ and $\mathbf{H}$, so that their sum approximates $\mathbf{V}$. \scriptsize{\textsf{\textcopyright} WikiMedia CC BY-SA 3.0}}
 \label{fig:NMF}
 
 \end{figure}
@@ -152,8 +159,8 @@ A visual representation of that can be seen in figure \ref{fig:MatrixOverview} (
 For our use case we were not interested in finding all the components and their activations.
 We were rather interested in finding the corresponding activation of a specific component, like that of a base drum or a hi-hat.
 This is also possible using NMF.
-In order to do so, we specified $\mathbf{W}$ as the spectrum of a base drum and $\mathbf{V}$ continued to be the spectrum of the whole song.
-The NMF then solves for the matrix $\mathbf{H}$ which tells at what point in time the specified base drum spectrum appears in the song.
+In order to do so, we specified $\mathbf{W}$ as the spectrum of a base drum (see figure \ref{fig:MatrixOverview} (b)) and $\mathbf{V}$ continued to be the spectrum of the whole song (see figure \ref{fig:MatrixOverview} (a)).
+The NMF then solves for the matrix $\mathbf{H}$ (see figure \ref{fig:MatrixOverview} (c)) which tells us at what point in time the specified base drum spectrum appears in the song.
 In that setup the NMF essentially works as a pattern matching algorithm.
 
 \begin{figure}[htb]
@@ -165,10 +172,79 @@ In that setup the NMF essentially works as a pattern matching algorithm.
   \medskip
 \end{minipage}
 
-\caption{(a) Magnitude spectrum of a drum track. (b) Magnitude spectrum of a base drum. (c) Activation matrix of the base drum. (d) Approximated spectrum. \scriptsize{\textcopyright Own work CC BY-SA 3.0}}
+\caption{(a) Magnitude spectrum of a drum track. (b) Magnitude spectrum of a base drum. (c) Activation matrix of the base drum. (d) Approximated spectrum. \scriptsize{\textsf{\textcopyright} Own work CC BY-SA 3.0}}
 \label{fig:MatrixOverview}
 
 \end{figure}
+
+
+\begin{figure}[htb]
+
+\begin{minipage}[b]{1.0\linewidth}
+  \centering
+  \centerline{\includegraphics[width=8.5cm]{figures/Flowchart}}
+%  \vspace{2.0cm}
+  \medskip
+\end{minipage}
+
+\caption{Flowchart of the whole drum transcription algorithm. \scriptsize{\textsf{\textcopyright} Own work CC BY-SA 3.0}}
+\label{fig:Flowchart}
+
+\end{figure}
+
+
+Figure \ref{fig:Flowchart} shows a flowchart with the complete overview of the algorithm we developed.
+On the left hand side the two inputs to the algorithms are shown.
+The first input is a time domain signal of percussive instrument, like a base drum or hi-hat, and the second input is a time domain signal of a piece of music.
+For both inputs the first step is to apply the short-time Fourier transform (STFT) which transforms both signal from the time domain to the frequency domain.
+For the parameters of the STFT we used a frame size of 1024 samples which yields in a frequency resolution of approx. 43 Hz per bin.
+We also chose an overlap of 50\% between hops to improve the time resolution.
+As mentioned before a visual representations of both transformed inputs can be found in figure \ref{fig:MatrixOverview} (b) and (a) respectively.
+Before both inputs together are fed into the actual detection the drum sound undergoes some further processing.
+This step is marked as template extraction in figure \ref{fig:Flowchart}.
+%% TODO: explain transient and shit
+After both inputs are prepared they are handed over to the NMF, which does its processing in the way described in the paragraph above.
+As explained the result of the NMF is in our case the activation matrix $\mathbf{H}$.
+The matrix $\mathbf{H}$ can also be viewed as a function curve of how much the given template is contribution to the given music signal over time.
+An example of the representation of the matrix $\mathbf{H}$ as a curve can be seen in figure \ref{fig:ActivationMatrix}.
+
+\begin{figure}[htb]
+
+\begin{minipage}[b]{1.0\linewidth}
+  \centering
+  \centerline{\includegraphics[width=8.5cm]{figures/ActivationMatrix}}
+%  \vspace{2.0cm}
+  \medskip
+\end{minipage}
+
+\caption{Example of the representation of an activation matrix as a curve. \scriptsize{\textsf{\textcopyright} Own work CC BY-SA 3.0}}
+\label{fig:ActivationMatrix}
+
+\end{figure}
+
+The next step of the algorithm is called onset detection where the exact time points are extracted from that curve.
+The onset detection is a simple implementation loosely based on the algorithms described by Lerch \cite{lerch2012book} in chapter 6.3.
+To extract the onsets of the drum events the significant local maxima of the curve (peaks) have to be detected.
+In order to do that the curve is first normalized.
+Afterwards a threshold of $\frac{2}{3}$ is applied.
+This value was establish empirically to separate the valid detection from false positives.
+Then the first derivative, which represents the slope of the curve, is calculated, by subtracting each element from the previous one.
+An example of the resulting curve can be found in figure \ref{fig:Ableitung}.
+
+\begin{figure}[htb]
+
+\begin{minipage}[b]{1.0\linewidth}
+  \centering
+  \centerline{\includegraphics[width=8.5cm]{figures/Ableitung}}
+%  \vspace{2.0cm}
+  \medskip
+\end{minipage}
+
+\caption{An example of the first derivative of the activation function. \scriptsize{\textsf{\textcopyright} Own work CC BY-SA 3.0}}
+\label{fig:Ableitung}
+
+\end{figure}
+
 
 basic NMF description, our peak picking algorithm, maybe libs used
 
@@ -193,6 +269,10 @@ discussion
 summary, noteworthy parts of the presented work,
 achievements and contributions
 possible improvements and future work
+
+Improvements: 
+- Using adaptive templates like shown in \cite{lerch2015} can help the "over-fitting" of a template.
+- adaptive threshold instead of 2/3
 
 % section conclusion (end)
 
