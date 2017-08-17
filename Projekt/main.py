@@ -30,9 +30,9 @@ def main():
 
     # Prepare the data
     # data = [[2, "sd", sdTemplate]]
-    # data = [[2, "bd", bdTemplate]]
+    data = [[2, "bd", bdTemplate]]
     # data = [[2, "ohh", ohhTemplate]]
-    data = [[2, "chh", chhTemplate]]
+    # data = [[2, "chh", chhTemplate]]
     # data = [[2, "rc3", rc3Template]]
     # data = [[2, "cb", cbTemplate]]
     for drummer, drumName, template in data:
@@ -42,7 +42,10 @@ def main():
         annotationPath = u"../../ENST-drums-public/drummer_" + str(drummer) + "/annotation/"
 
         # get all audio file names
-        allAudioFiles = [f for f in listdir(audioPath) if path.isfile(path.join(audioPath, f)) and f.endswith(".wav")]
+        #allAudioFiles = [f for f in listdir(audioPath) if path.isfile(path.join(audioPath, f)) and f.endswith(".wav")]
+
+        # TO BE REMOVED: test track for the plots
+        allAudioFiles = ["045_phrase_rock_simple_medium_sticks.wav"]
 
         print("Transcripting: " + drumName + " of drummer " + str(drummer) + "\n=============")
 
@@ -203,6 +206,7 @@ def findTemplate(audio, template, annotations, fs):
 
     # plt.figure()
     # plt.plot(Harray)
+    # plt.xlabel("STFT frame number")
     # plt.savefig("ZeroCrosses.pdf", bbox_inches='tight')
     # plt.show()
 

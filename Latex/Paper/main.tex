@@ -51,9 +51,9 @@
 %
 \begin{abstract}
 Using math to do magic is easy.
-While it is very easy for us humans to find patterns and percussive events in music such a task is very difficult for a computer.
-In this research we showed that it is possible for a computer to find the exact time points of drum events in a piece of music by using non-negative matrix factorization.
-Generating such a so called drum transcription can have lots of different applications.
+While it is very easy for us humans to find patterns and percussive events in music such a task is very difficult to a computer.
+In this research we show that it is possible for a computer to find the exact time points of drum events in a piece of music by using non-negative matrix factorization.
+Generating such a so called drum transcription is useful in lots of different applications.
 By using relatively straightforward math and well established techniques that others before us have researched we hoped to get a reliable drum transcription algorithm.
 In doing so we were able to get detection rates of up to 90\%.
 
@@ -72,14 +72,14 @@ For this research paper we looked into the topic of generating a drum transcript
 Drum transcription is considered a classical music information retrieval (MIR) problem, where you want to extract information from a mixed piece of music.
 In order to achieve this an algorithm is applied to the raw sound data to find the time points where a drum event happens in the song.
 This list of time points and a corresponding flag with the kind of the drum event is called the drum transcription. 
-While in theory this can be used to find any kind of event within a musical piece, we focused mainly on basic drum sounds in our research.
+While in theory the proposed algorithm can be used to find any kind of event within a musical piece, we focused mainly on basic drum sounds in our research.
 
-The transcription of the drum track of a song can be useful in many cases.
+The transcription of a songs drum track can be useful in many cases.
 The simplest would be to generate the sheet music for a song where the original has been lost or is not available.
 It can also be used for more sophisticated use cases like a conversion of a audio file to a MIDI sequence (known as Audio-to-MIDI).
 For syncing visuals to music in VJing or light show applications (Sound-to-Light) a drum transcription is also an integral part.
 Furthermore the drum transcription of a song can be used as a basis for more complicated MIR analysis.
-For example using the results of the drum transcription a Beats per Minute (BPM) detection can be build, which in turn can then be the basis of a tempo detection algorithm.
+For example using the results of the drum transcription a Beats per Minute (BPM) detection can be build, which in turn can then be the basis of a tempo detection or song segmentation algorithm.
 Overall the drum transcription of a song is a basic but versatile information, that can be used in many different applications.
 
 
@@ -108,16 +108,16 @@ Section \ref{sec:algo} will show a detailed explanation of how the NMF works.
 \section{Related work}
 \label{sec:rel}
 
-The idea to use NMF for pattern recognition was first proposed by Lee and Seung in 1999 \cite{lee1999}.
+The idea to use NMF for pattern recognition was first proposed in a paper by Lee and Seung in 1999 \cite{lee1999}.
 As described in their paper NMF is a versatile technique to find features in a data set.
 Lee and Seung proposed in their paper that it can be used to recognize parts in faces, find semantic features in texts or find certain musical events in a piece of music.
 During the last decade NMF was researched and applied in all the fields they mentioned and many more.
 
-In the field of MIR NMF has also been used in a variety of applications.
+In the field of MIR NMF has also been used in a variety of different applications.
 Most notable are the fields of source separation and music transcription.
 For source separation the goal is to separate a piece of music containing a mix of multiple sound sources into the their components.
-%T. Virtanen \cite{virtanen2007} among many others has researched this topic.
-\cite{virtanen2007}
+T. Virtanen \cite{virtanen2007} among many others has researched this topic. % ich würde den satz drinn lassen, weil Virtanen ein Guru auf dem NMF gebiet ist. Name dropping und so!
+%\cite{virtanen2007}
 
 In the field of music transcription NMF has also been used for different topics.
 Smaragdis and Brown \cite{smaragdis2003} used NMF to analyze and extract polyphonic, harmonic content from a piece of music.
@@ -140,7 +140,7 @@ Paulus and Virtanen \cite{paulus2005} as well as Moreau and Flexer \cite{moreau2
 \section{Algorithm overview and description}
 \label{sec:algo}
 
-As mentioned above we use a \textbf{non-negative matrix factorization} to extract the time points of drum events from a drum track.
+As mentioned above we used a \textbf{non-negative matrix factorization} to extract the time points of drum events from a drum track.
 In general terms the NMF factorizes a matrix (usually called $\mathbf{V}$) into two smaller matrices (usually called $\mathbf{W}$ and $\mathbf{H}$) with the constraint that every matrix element must be non-negative.
 In turn the sum of $\mathbf{W}$ and $\mathbf{H}$ is an approximation of $\mathbf{V}$ (see figure \ref{fig:NMF}).
 
@@ -158,18 +158,19 @@ In turn the sum of $\mathbf{W}$ and $\mathbf{H}$ is an approximation of $\mathbf
 
 \end{figure}
 
-In our case we use the magnitude spectrum of a song as the $\mathbf{V}$ matrix and decomposed it into two matrices.
-The first one contains the magnitude spectra of the individual components we are interested in ($\mathbf{W}$) and the second one contains the time-varying gain of these components ($\mathbf{H}$), which tells us when each of the components for the first matrix is active.
+In our case we used the magnitude spectrum of a song as the $\mathbf{V}$ matrix and decompose it into two matrices.
+The first one contains the magnitude spectra of the individual components we are interested in ($\mathbf{W}$) and the second one contains the time-varying gain of these components ($\mathbf{H}$), which tells us when each of the components form the first matrix is active.
 For that reason the $\mathbf{W}$ matrix is usually called component matrix and $\mathbf{H}$ is usually called activation matrix.
 Again the sum of both of these matrices makes up an approximation of the original spectrum \cite{smaragdis2003}.
 A visual representation of that can be seen in figure \ref{fig:MatrixOverview} (d).
+The constraint of only using non-negative numbers is met since we are using magnitude spectra which by definition only contain non-negative number.
 
 For our use case we were not interested in finding all the components and their activations.
 We were rather interested in finding the corresponding activation of a specific component, like that of a base drum or a hi-hat.
 This is also possible using NMF.
 In order to do so, we specified $\mathbf{W}$ as the spectrum of a base drum (see figure \ref{fig:MatrixOverview} (b)) and $\mathbf{V}$ continued to be the spectrum of the whole song (see figure \ref{fig:MatrixOverview} (a)).
-The NMF then solves for the matrix $\mathbf{H}$ (see figure \ref{fig:MatrixOverview} (c)) which tells us at what point in time the specified base drum spectrum appears in the song.
-In that setup the NMF essentially works as a pattern matching algorithm.
+The NMF then solved for the matrix $\mathbf{H}$ (see figure \ref{fig:MatrixOverview} (c)) which told us at what point in time the specified base drum spectrum appears in the song.
+In that setup the NMF essentially worked as a pattern matching algorithm.
 
 \begin{figure}[htb]
 
@@ -203,11 +204,12 @@ In that setup the NMF essentially works as a pattern matching algorithm.
 
 Figure \ref{fig:Flowchart} shows a flowchart with the complete overview of the algorithm we developed.
 On the left hand side the two inputs to the algorithms are shown.
-The first input is a time domain signal of percussive instrument, like a base drum or hi-hat, and the second input is a time domain signal of a piece of music.
+The first input is a time domain signal of a percussive instrument, like a base drum or hi-hat, and the second input is a time domain signal of a piece of music.
 For both inputs the first step is to down mix the signals into a mono signal.
 Next the short-time Fourier transform (STFT) is applied, which transforms both signal from the time domain to the frequency domain.
 For the parameters of the STFT we used a frame size of 1024 samples which yields in a frequency resolution of approx. 43 Hz per bin.
 We also chose an overlap of 50\% between hops to improve the time resolution.
+A Hann window was applied to reduce spectral leakage.
 As mentioned before a visual representations of both transformed inputs can be found in figure \ref{fig:MatrixOverview} (b) and (a) respectively.
 
 Before both inputs are fed into the actual detection the drum sound undergoes some further processing.
@@ -218,10 +220,10 @@ As most of the energy is in the transient it is the most relevant part of the ba
 Using only the transient also makes the template somewhat independent of the room it was recorded in, as any possible reverberation or echo is cut off.
 
 
-After both inputs are prepared they are handed over to the NMF, which does its processing in the way described before.
-The result of the NMF is in our case the activation matrix $\mathbf{H}$.
+After both inputs are prepared they were handed over to the NMF, which does its processing in the way described above.
+The result of the NMF was in our case the activation matrix $\mathbf{H}$.
 The matrix $\mathbf{H}$ can also be viewed as a function curve of how much the given template is contributing to the given music signal over time.
-The next step of the algorithm is called \textbf{onset detection} where we extract the exact time points from the matrix $\mathbf{H}$.
+The next step of the algorithm is called \textbf{onset detection} where we extracted the exact time points from the matrix $\mathbf{H}$.
 An alternative representation of the matrix $\mathbf{H}$ as a curve can be seen in figure \ref{fig:ActivationMatrix}.
 \begin{figure}[htb]
 
@@ -238,22 +240,22 @@ An alternative representation of the matrix $\mathbf{H}$ as a curve can be seen 
 \end{figure}
 The onset detection is a simple implementation loosely based on the algorithms described by Lerch \cite{lerch2012book} in chapter 6.3.
 To extract the onsets of the drum events the significant local maxima of the curve (peaks) have to be detected.
-In order to do that the curve is first normalized.
-Afterwards a threshold of $\frac{2}{3}$ is applied, which can be seen as a red line in figure \ref{fig:ActivationMatrix}.
+In order to do that the curve was first normalized.
+Afterwards a threshold of $\frac{2}{3}$ was applied, which can be seen as a red line in figure \ref{fig:ActivationMatrix}.
 This value was establish empirically to separate the valid detections from false positives.
-Then the first derivative, which represents the slope of the curve, is calculated, by subtracting each element from the previous one.
+Then the first derivative, which represents the slope of the curve, was calculated, by subtracting each element from the previous one.
 An example of the resulting curve can be found in figure \ref{fig:Ableitung}.
-In order to find the extract time points of a peak the zero crossings of the resulting curve have to be detected.
-Once the frame number of a zero crossing is found, the frame number has to be converted back to a time point.
-This is achieved by applying the following formula, where $f_s$ is the sample rate.
+In order to find the extract time points of a peak the zero crossings of the resulting curve had to be detected.
+Once the frame number of a zero crossing was found, the frame number had to be converted back to a time point.
+This was achieved by applying the following formula, where $f_s$ is the sample rate.
 
 \begin{align}
 \label{eq:timePoint}
 timePoint = zeroCrossingFrameNumber * \frac{hopSize}{f_s}
 \end{align}
 
-Due to the formula \ref{eq:timePoint} we are only able to get the time point within a range of approx. 12 ms (called epsilon).
-Once this calculation is done we receive a list of time points where the given template is found in the song which is the drum transcription we were looking for.
+Due to the formula \ref{eq:timePoint} we were only able to get the time point within a range of approx. 12 ms (called epsilon).
+Once this calculation was done we received a list of time points where the given template was found in the song which is the drum transcription we were looking for.
 
 \begin{figure}[htb]
 
@@ -282,16 +284,16 @@ The entire code repository is licensed under the GPL 3.0 and can be found on Git
 \section{Evaluation}
 \label{sec:evaluation}
 
-As our test data set we used the ENST-drums database of the Institut Télécom Paris Tech\footnote{ENST drum test database: \url{https://perso.telecom-paristech.fr/~grichard/ENST-drums/}}.
+As our test data set we used the ENST-drums database kindly provided by the Institut Télécom Paris Tech\footnote{ENST drum test database: \url{https://perso.telecom-paristech.fr/~grichard/ENST-drums/}}.
 The data set contains recordings of 207 drum tracks split over 3 different drum kits.
 In the data set each instrument of the drum kit is recorded separately.
-For our purposes we use the mixed version of the tracks called ``wet-mix'' which also contains some acoustic elements of the recording room, like reverberation, making it more realistic for real world applications.
+For our purposes we use the mixed version of the tracks called ``wet-mix'' which also contains some acoustic room elements, like reverberation, making it more suitable as a test data set for real world applications.
 Next to the recordings the test data set also contains an annotation file for each drum track, which lists the occurrence of an instrument as well as the time point it occurred.
 This data was used as the ground truth to compare our algorithm against.
 
 In order to evaluate the accuracy of our algorithm we compared the drum events that our algorithm detected with the annotations of the ENST test set.
 When comparing the results we took into account the epsilon error margin of approx. 12 ms.
-This leaves us with a detection rate for each track.
+This left us with a detection rate for each track.
 To get an overall estimate of the accuracy of our algorithm we calculated the median for each drum kit as well as the mean and the standard deviation.
 Besides the true positives we also counted the false positives for each track, where our algorithm would detect a drum event, but according to the annotations there is none there.
 We calculated the median, mean and standard deviation across all tracks for the false positives as well.
@@ -324,13 +326,13 @@ Drum kit 1 shows different accuracy results.
 Here only around 25\% of the base drum hits are detected correctly, while the false positive detection is also at around 20\%.
 The standard deviation is also significantly higher.
 
-From these results we can see that our algorithm returns very satisfying results for 2 out 3 drum kits from our test data set.
+From these results we can see that our algorithm returns very satisfying results for 2 out of 3 drum kits from our test data set.
 We also found an explanation for the outlier.
 When listening to the base drum sounds of the individual drum kits it becomes obvious that drum kit 2 and 3 sound very alike with a sharp, crisp base drum sound, while the drum kit 1 sounds more smooth and mellow.
 Since the base drum template used here was extracted from the drum kit 2 it is not very surprising that the algorithm can't find it in the much different sounding drum kit 1.
 The solution to this problem would be to use a more generalized base drum template.
 This shows an apparent flaw in the design of the algorithm.
-It can only work as good as the templates it is provided with.
+It can only work as well as the templates it is provided with.
 If the sound the algorithm is looking for is pitched or distorted to much, it won't be picked up.
 More on how to improve this work in section \ref{sec:conclusion}.
 
@@ -354,10 +356,10 @@ Through different methods described in their paper it is possible to iteratively
 That way an ``over-fitting'' of the template to a certain drum kit can be avoided.
 
 Another area of improvement is the onset detection with special focus on the peak picking algorithm.
-Here the empirically chosen threshold value of $\frac{2}{3}$ already yield good results, but it is also responsible for some missed events and some false positives.
-Using an adaptive threshold would further improve the outcome.
+Here the empirically chosen threshold value of $\frac{2}{3}$ already yields good results, but it is also responsible for some missed events and some false positives.
+Using an adaptive threshold would further improve the results.
 
-As mentioned above he precision of the detected peak time point is only precise within a range of approx. 12 ms since only the STFT frame it occurring in can be tracked.
+As mentioned above the precision of the detected peak time point is only precise within a range of approx. 12 ms since only the STFT frame in which the peak occurs can be tracked.
 The precision could be improved by using a sinc interpolation to exactly determine the point of inflection.
 
 Originally we wanted to test our drum transcription algorithm on a piece of mixed polyphonic music instead of just drum tracks.
@@ -365,7 +367,7 @@ Sadly we were unable to find an annotated test data set that fit our needs as a 
 Theoretically by using mixed music only the activation matrix $\mathbf{H}$ should get a bit more noisy.
 Everything else should work as described here.
 
-In closing we have presented an algorithm in this paper that gives satisfying results when trying to exact the exact time points at which base drum hits happen in a drum track.
+In closing we have presented an algorithm in this paper that gives satisfying results when trying to extract the exact time points at which base drum hits happen in a drum track.
 It can easily be extended to other percussive instruments and maybe even other melodic instruments.
 The accuracy and precision could be improved in future work by the methods mentioned.
 
