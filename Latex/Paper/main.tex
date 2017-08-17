@@ -50,13 +50,19 @@
 \maketitle
 %
 \begin{abstract}
-Stark verkürzte, überblicksartige Darstellung von Forschungsbedarf, Fragestellung, Methode, erwartetem
-Ergebnis und Nutzen.
-The abstract should contain about 100 to 150 words.
+Using math to do magic is easy.
+While it is very easy for us humans to find patterns and percussive events in music such a task is very difficult for a computer.
+In this research we showed that it is possible for a computer to find the exact time points of drum events in a piece of music by using non-negative matrix factorization.
+Generating such a so called drum transcription can have lots of different applications.
+By using relatively straightforward math and well established techniques that others before us have researched we hoped to get a reliable drum transcription algorithm.
+In doing so we were able to get detection rates of up to 90\%.
+
+%Stark verkürzte, überblicksartige Darstellung von Forschungsbedarf, Fragestellung, Methode, erwartetem Ergebnis und Nutzen.
+%The abstract should contain about 100 to 150 words.
 \end{abstract}
 %
 \begin{keywords}
-Non-Negative Matrix Factorization, Drum Transcription, Profit
+Drum Transcription, Non-Negative Matrix Factorization, Onset Detection%, Profit
 \end{keywords}
 %
 \section{Introduction}
@@ -73,7 +79,7 @@ The simplest would be to generate the sheet music for a song where the original 
 It can also be used for more sophisticated use cases like a conversion of a audio file to a MIDI sequence (known as Audio-to-MIDI).
 For syncing visuals to music in VJing or light show applications (Sound-to-Light) a drum transcription is also an integral part.
 Furthermore the drum transcription of a song can be used as a basis for more complicated MIR analysis.
-For example using the results of the drum transcription a Beats per Minute (BPM) detection can be build, which in turn can then be the basis of a tempo detection algorithm [QUELLE].
+For example using the results of the drum transcription a Beats per Minute (BPM) detection can be build, which in turn can then be the basis of a tempo detection algorithm.
 Overall the drum transcription of a song is a basic but versatile information, that can be used in many different applications.
 
 
@@ -206,7 +212,10 @@ As mentioned before a visual representations of both transformed inputs can be f
 
 Before both inputs are fed into the actual detection the drum sound undergoes some further processing.
 This step is marked as \textbf{template extraction} in figure \ref{fig:Flowchart}.
-%% TODO: explain transient and shit
+For our base drum template we chose to only use the transient of the base drum.
+This has the advantage that it makes the template independent of the length of the original base drum sound.
+As most of the energy is in the transient it is the most relevant part of the base drum sound.
+Using only the transient also makes the template somewhat independent of the room it was recorded in, as any possible reverberation or echo is cut off.
 
 
 After both inputs are prepared they are handed over to the NMF, which does its processing in the way described before.
@@ -243,7 +252,7 @@ This is achieved by applying the following formula, where $f_s$ is the sample ra
 timePoint = zeroCrossingFrameNumber * \frac{hopSize}{f_s}
 \end{align}
 
-Due to the formula \ref{eq:timePoint} we are only able to get the time point within a range of approx. 12 ms.
+Due to the formula \ref{eq:timePoint} we are only able to get the time point within a range of approx. 12 ms (called epsilon).
 Once this calculation is done we receive a list of time points where the given template is found in the song which is the drum transcription we were looking for.
 
 \begin{figure}[htb]
@@ -261,6 +270,10 @@ Once this calculation is done we receive a list of time points where the given t
 \end{figure}
 
 
+The implementation of our algorithm was done in Python using the numpy/scipy library stack. 
+As well as the library nimfa\footnote{\url{http://nimfa.biolab.si/}} for NMF calculations.
+The entire code repository is licensed under the GPL 3.0 and can be found on GitHub\footnote{\url{https://github.com/Bendrien/AudioContentAnalysis}}.
+
 %basic NMF description, our peak picking algorithm, maybe libs used
 
 % section algo (end)
@@ -269,12 +282,34 @@ Once this calculation is done we receive a list of time points where the given t
 \section{Evaluation}
 \label{sec:evaluation}
 
-As our test data set we used the ENST-drums database of the Institut Télécom Paris Tech\footnote{\url{http://perso.telecom-paristech.fr/~grichard/ENST-drums/}}.
+As our test data set we used the ENST-drums database of the Institut Télécom Paris Tech\footnote{\url{https://perso.telecom-paristech.fr/~grichard/ENST-drums/}}.
 The data set contains recordings of 207 drum tracks split over 3 different drum kits.
 In the data set each instrument of the drum kit is recorded separately.
 For our purposes we only uses the mixed version of the tracks called ``wet-mix'' which also contains some acoustic elements of the recording room, like reverberation, making it more realistic for real world applications.
 Next to the recordings the test data set also contains a annotation file for each drum track, which lists the occurrence an instrument as well as the time point it occurred.
 This data was used as the ground truth to compare our algorithm against.
+
+In order to evaluate the accuracy of our algorithm we compared the drum events that our algorithm detected with the annotations of the ENST test set.
+When comparing the results we took into account the epsilon error margin of approx. 12 ms.
+
+
+  \begin{table}[h]
+    \centering
+    \begin{tabular}{l | c c c}
+      Drummer  &  1 & 2 & 3 \\
+      \# Files &   63 &   75 & 69 \\
+      \hline
+      Median$_{P}$   & 0.25 & 0.93 & 0.86 \\
+      Mean$_{P}$     & 0.27 & 0.89 & 0.80 \\
+      $\sigma_P$     & 0.22 & 0.12 & 0.18 \\
+      \hline
+      Median$_{FP}$   & 0.13 & 0.0 & 0.0 \\
+      Mean$_{FP}$     & 0.23 & 0.0 & 0.001 \\
+      $\sigma_{FP}$   & 0.29 & 0.0 & 0.001 \\
+    \end{tabular}
+    \caption{Results of the base drum detection. $P$ represents the true positives and $FP$ the false positives.}
+    \label{tab:results}
+  \end{table}
 
 ground truth, methodology, metrics
 results
