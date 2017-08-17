@@ -357,7 +357,7 @@ Another area of improvement is the onset detection with special focus on the pea
 Here the empirically chosen threshold value of $\frac{2}{3}$ already yield good results, but it is also responsible for some missed events and some false positives.
 Using an adaptive threshold would further improve the outcome.
 
-As mentioned above he precision of the detected peak time point is is only precise within a range of approx. 12 ms since only the STFT frame it occurring in can be tracked.
+As mentioned above he precision of the detected peak time point is only precise within a range of approx. 12 ms since only the STFT frame it occurring in can be tracked.
 The precision could be improved by using a sinc interpolation to exactly determine the point of inflection.
 
 Originally we wanted to test our drum transcription algorithm on a piece of mixed polyphonic music instead of just drum tracks.
@@ -365,7 +365,7 @@ Sadly we were unable to find an annotated test data set that fit our needs as a 
 Theoretically by using mixed music only the activation matrix $\mathbf{H}$ should get a bit more noisy.
 Everything else should work as described here.
 
-In closing we have presented an algorithm in this paper that gives satisfying results when trying to extract the exact time points at which base drum hits happen in a drum track.
+In closing we have presented an algorithm in this paper that gives satisfying results when trying to exact the exact time points at which base drum hits happen in a drum track.
 It can easily be extended to other percussive instruments and maybe even other melodic instruments.
 The accuracy and precision could be improved in future work by the methods mentioned.
 
