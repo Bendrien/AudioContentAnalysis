@@ -6,6 +6,7 @@
 \usepackage{spconf,amsmath,graphicx}
 \usepackage{blindtext}
 \usepackage[utf8]{inputenc}
+\usepackage{hyperref}
 
 % Example definitions.
 % --------------------
@@ -19,7 +20,7 @@
 % Single address.
 % ---------------
 \name{Anyere Bendrien, Maximilian Wagenbach
-    \thanks{Thanks to Holger Kirchhof and Tim Flohrer for assistance.}}
+    \thanks{Thanks to Holger Kirchhof and Tim Flohrer for assistance. Also thanks to TELECOM ParisTech - Dep. TSIe for generously providing the ENST drum test data set.}}
 \address{Technical University of Berlin\\
     Audiocommunication Group\\
     Einsteinufer 17, 10587 Berlin}
@@ -196,7 +197,8 @@ In that setup the NMF essentially works as a pattern matching algorithm.
 Figure \ref{fig:Flowchart} shows a flowchart with the complete overview of the algorithm we developed.
 On the left hand side the two inputs to the algorithms are shown.
 The first input is a time domain signal of percussive instrument, like a base drum or hi-hat, and the second input is a time domain signal of a piece of music.
-For both inputs the first step is to apply the short-time Fourier transform (STFT) which transforms both signal from the time domain to the frequency domain.
+For both inputs the first step is to down mix the signals into a mono signal.
+Next the short-time Fourier transform (STFT) is applied, which transforms both signal from the time domain to the frequency domain.
 For the parameters of the STFT we used a frame size of 1024 samples which yields in a frequency resolution of approx. 43 Hz per bin.
 We also chose an overlap of 50\% between hops to improve the time resolution.
 As mentioned before a visual representations of both transformed inputs can be found in figure \ref{fig:MatrixOverview} (b) and (a) respectively.
@@ -217,7 +219,7 @@ An example of the representation of the matrix $\mathbf{H}$ as a curve can be se
   \medskip
 \end{minipage}
 
-\caption{Example of the representation of an activation matrix as a curve. With a red line marking the threshold. \scriptsize{\textsf{\textcopyright} Own work CC BY-SA 3.0}}
+\caption{Example of the representation of an activation matrix as a curve. With a red line marking the threshold at $\frac{2}{3}$. \scriptsize{\textsf{\textcopyright} Own work CC BY-SA 3.0}}
 \label{fig:ActivationMatrix}
 
 \end{figure}
@@ -227,11 +229,19 @@ The onset detection is a simple implementation loosely based on the algorithms d
 To extract the onsets of the drum events the significant local maxima of the curve (peaks) have to be detected.
 In order to do that the curve is first normalized.
 Afterwards a threshold of $\frac{2}{3}$ is applied, which can be seen as a red line in figure \ref{fig:ActivationMatrix}.
-This value was establish empirically to separate the valid detection from false positives.
+This value was establish empirically to separate the valid detections from false positives.
 Then the first derivative, which represents the slope of the curve, is calculated, by subtracting each element from the previous one.
 An example of the resulting curve can be found in figure \ref{fig:Ableitung}.
-% TODO: zero crossings, transfrom from frame back to time, mention error range do to frame
+In order to find the extract time points of a peak the zero crossings of the resulting curve have to be detected.
+Once the frame number of a zero crossing is found, the frame number has to be converted back to a time point.
+This is achieved by applying the following formula, where $f_s$ is the sample rate.
 
+\[
+timePoint = zeroCrossingFrameNumber * \frac{hopSize}{f_s}
+\]
+
+Due to the formula we are only able to get the time point within a range of approx. 12 ms.
+Once this calculation is done we receive a list of time points where the given template is found in the song which is the drum transcription we were looking for.
 
 \begin{figure}[htb]
 
@@ -248,13 +258,20 @@ An example of the resulting curve can be found in figure \ref{fig:Ableitung}.
 \end{figure}
 
 
-basic NMF description, our peak picking algorithm, maybe libs used
+%basic NMF description, our peak picking algorithm, maybe libs used
 
 % section algo (end)
 
 
 \section{Evaluation}
 \label{sec:evaluation}
+
+As our test data set we used the ENST-drums database of the Institut Télécom Paris Tech\footnote{\url{http://perso.telecom-paristech.fr/~grichard/ENST-drums/}}.
+The data set contains recordings of 207 drum tracks split over 3 different drum kits.
+In the data set each instrument of the drum kit is recorded separately.
+For our purposes we only uses the mixed version of the tracks called ``wet-mix'' which also contains some acoustic elements of the recording room, like reverberation, making it more realistic for real world applications.
+Next to the recordings the test data set also contains a annotation file for each drum track, which lists the occurrence an instrument as well as the time point it occurred.
+This data was used as the ground truth to compare our algorithm against.
 
 ground truth, methodology, metrics
 results
@@ -275,6 +292,7 @@ possible improvements and future work
 Improvements: 
 - Using adaptive templates like shown in \cite{lerch2015} can help the "over-fitting" of a template.
 - adaptive threshold instead of 2/3
+- sinc interpolation to reduce epsilon
 
 % section conclusion (end)
 
