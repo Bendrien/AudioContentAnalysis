@@ -13,8 +13,13 @@ from os import path
 
 def main():
 
-    # load the bass drum template
-    fs, bdTemplate = getNormalizedAudio("base_drum.wav")
+    # load the drum templates
+    fs, sdTemplate = getNormalizedAudio("001_hits_snare-drum_sticks.wav")
+    fs, bdTemplate = getNormalizedAudio("004_hits_bass-drum_pedal.wav")
+    fs, ohhTemplate = getNormalizedAudio("005_hits_open-hi-hat_sticks.wav")
+    fs, chhTemplate = getNormalizedAudio("006_closed-hi-hat_sticks.wav")
+    fs, rc3Template = getNormalizedAudio("008_hits_ride-cymbal-1_sticks.wav")
+    fs, cbTemplate = getNormalizedAudio("013_hits_cowbell_sticks.wav")
 
     # plt.plot(template)
     # plt.axvspan(0, 1024, color='red', alpha=0.5)
@@ -23,7 +28,13 @@ def main():
     # plt.savefig("BassdrumTemplate.pdf")
     # plt.show()
 
-    data = [[2, "bd", bdTemplate], [2, "chh", bdTemplate]]
+    # Prepare the data
+    # data = [[2, "sd", sdTemplate]]
+    # data = [[2, "bd", bdTemplate]]
+    # data = [[2, "ohh", ohhTemplate]]
+    data = [[2, "chh", chhTemplate]]
+    # data = [[2, "rc3", rc3Template]]
+    # data = [[2, "cb", cbTemplate]]
     for drummer, drumName, template in data:
 
         # setup the file directories
@@ -61,8 +72,8 @@ def main():
 
             # write results
             resultFilename = "../../Results/Drummer_" + str(drummer) + "/" + filename + "_" + drumName + ".txt"
-            # print("Writing individual results to \"" + filename + "\"")
             file = open(resultFilename, "w")
+            file.write("[result, ground truth time, estimated time, difference]\n\n")
             file.write(str(result))
             file.close()
 
@@ -73,7 +84,7 @@ def main():
 
             # count analyzed tracks
             numberOfAnalyzedTracks += 1
-            if numberOfAnalyzedTracks > 1: break
+            #if numberOfAnalyzedTracks > 1: break
 
         writeResults(drummer, drumName, numberOfAnalyzedTracks, positives, false_positives, trackNames)
         print("\n")
@@ -92,14 +103,12 @@ def writeResults(drummer, drumName, numberOfAnalyzedTracks, positives, false_pos
     file.write("\n")
 
     file.write("\n## Positives")
-    file.write("\nCount:\t" + str(np.size(positives)))
     file.write("\nMedian:\t" + str(np.median(positives)))
     file.write("\nMean:\t" + str(np.mean(positives)))
     file.write("\nStandard Deviation:\t" + str(np.std(positives)))
     file.write("\n")
 
     file.write("\n## False Positives")
-    file.write("\nCount:\t" + str(np.size(false_positives)))
     file.write("\nMedian:\t" + str(np.median(false_positives)))
     file.write("\nMean:\t" + str(np.mean(false_positives)))
     file.write("\nStandard Deviation:\t" + str(np.std(false_positives)))
@@ -288,12 +297,12 @@ def compare_times(groundtruth, data, epsilon):
 
                 # if the previous result was a match
                 if prev_cmp == Result.EQUAL:
-                    # ignore it and just continue with the current one
+                    # just append the current one
                     results.append([result, gt_time, data_time, diff])
 
                 # if the accurancy of the previous result wasn't as good as the current one (then two not corresponding values where compared)
                 elif diff < prev_diff:
-                    # so just pop the last result because its not meaningful.
+                    # just pop the last result because its not meaningful.
                     results.pop()
                     results.append([result, gt_time, data_time, diff])
 

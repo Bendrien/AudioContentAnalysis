@@ -285,8 +285,8 @@ The entire code repository is licensed under the GPL 3.0 and can be found on Git
 As our test data set we used the ENST-drums database of the Institut Télécom Paris Tech\footnote{ENST drum test database: \url{https://perso.telecom-paristech.fr/~grichard/ENST-drums/}}.
 The data set contains recordings of 207 drum tracks split over 3 different drum kits.
 In the data set each instrument of the drum kit is recorded separately.
-For our purposes we only uses the mixed version of the tracks called ``wet-mix'' which also contains some acoustic elements of the recording room, like reverberation, making it more realistic for real world applications.
-Next to the recordings the test data set also contains a annotation file for each drum track, which lists the occurrence an instrument as well as the time point it occurred.
+For our purposes we use the mixed version of the tracks called ``wet-mix'' which also contains some acoustic elements of the recording room, like reverberation, making it more realistic for real world applications.
+Next to the recordings the test data set also contains an annotation file for each drum track, which lists the occurrence of an instrument as well as the time point it occurred.
 This data was used as the ground truth to compare our algorithm against.
 
 In order to evaluate the accuracy of our algorithm we compared the drum events that our algorithm detected with the annotations of the ENST test set.
@@ -312,7 +312,7 @@ The results of our evaluation for the base drum template can be found in table \
       Mean$_{FP}$     & 0.23 & 0.0 & 0.001 \\
       $\sigma_{FP}$   & 0.29 & 0.0 & 0.001 \\
   \end{tabular}
-  \caption{Results of the base drum detection. $P$ represents the true positives and $FP$ the false positives.}
+  \caption{Results of the base drum detection. $_P$ represents the true positives and $_{FP}$ the false positives.}
   \label{tab:results}
 \end{table}
 
@@ -338,6 +338,7 @@ More on how to improve this work in section \ref{sec:conclusion}.
 %ground truth, methodology, metrics
 %results
 %discussion
+
 
 % section evaluation (end)
 
