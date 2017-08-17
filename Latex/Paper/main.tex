@@ -107,10 +107,11 @@ As described in their paper NMF is a versatile technique to find features in a d
 Lee and Seung proposed in their paper that it can be used to recognize parts in faces, find semantic features in texts or find certain musical events in a piece of music.
 During the last decade NMF was researched and applied in all the fields they mentioned and many more.
 
-In the field of music information retrieval NMF has also been used in a variety of applications.
+In the field of MIR NMF has also been used in a variety of applications.
 Most notable are the fields of source separation and music transcription.
 For source separation the goal is to separate a piece of music containing a mix of multiple sound sources into the their components.
-T. Virtanen \cite{virtanen2007} among many others has researched this topic.
+%T. Virtanen \cite{virtanen2007} among many others has researched this topic.
+\cite{virtanen2007}
 
 In the field of music transcription NMF has also been used for different topics.
 Smaragdis and Brown \cite{smaragdis2003} used NMF to analyze and extract polyphonic, harmonic content from a piece of music.
@@ -133,7 +134,7 @@ literature review, state of the art
 \section{algorithm overview and description}
 \label{sec:algo}
 
-As mentioned above we used a non-negative matrix factorization to extract the time points of drum events from a drum track.
+As mentioned above we use a \textbf{non-negative matrix factorization} to extract the time points of drum events from a drum track.
 In general terms the NMF factorizes a matrix (usually called $\mathbf{V}$) into two smaller matrices (usually called $\mathbf{W}$ and $\mathbf{H}$) with the constraint that every matrix element must be non-negative.
 In turn the sum of $\mathbf{W}$ and $\mathbf{H}$ is an approximation of $\mathbf{V}$ (see figure \ref{fig:NMF}).
 
@@ -202,14 +203,17 @@ Next the short-time Fourier transform (STFT) is applied, which transforms both s
 For the parameters of the STFT we used a frame size of 1024 samples which yields in a frequency resolution of approx. 43 Hz per bin.
 We also chose an overlap of 50\% between hops to improve the time resolution.
 As mentioned before a visual representations of both transformed inputs can be found in figure \ref{fig:MatrixOverview} (b) and (a) respectively.
-Before both inputs together are fed into the actual detection the drum sound undergoes some further processing.
-This step is marked as template extraction in figure \ref{fig:Flowchart}.
-%% TODO: explain transient and shit
-After both inputs are prepared they are handed over to the NMF, which does its processing in the way described in the paragraph above.
-As explained the result of the NMF is in our case the activation matrix $\mathbf{H}$.
-The matrix $\mathbf{H}$ can also be viewed as a function curve of how much the given template is contribution to the given music signal over time.
-An example of the representation of the matrix $\mathbf{H}$ as a curve can be seen in figure \ref{fig:ActivationMatrix}.
 
+Before both inputs are fed into the actual detection the drum sound undergoes some further processing.
+This step is marked as \textbf{template extraction} in figure \ref{fig:Flowchart}.
+%% TODO: explain transient and shit
+
+
+After both inputs are prepared they are handed over to the NMF, which does its processing in the way described before.
+The result of the NMF is in our case the activation matrix $\mathbf{H}$.
+The matrix $\mathbf{H}$ can also be viewed as a function curve of how much the given template is contributing to the given music signal over time.
+The next step of the algorithm is called \textbf{onset detection} where we extract the exact time points from the matrix $\mathbf{H}$.
+An alternative representation of the matrix $\mathbf{H}$ as a curve can be seen in figure \ref{fig:ActivationMatrix}.
 \begin{figure}[htb]
 
 \begin{minipage}[b]{1.0\linewidth}
@@ -223,8 +227,6 @@ An example of the representation of the matrix $\mathbf{H}$ as a curve can be se
 \label{fig:ActivationMatrix}
 
 \end{figure}
-
-The next step of the algorithm is called onset detection where the exact time points are extracted from that curve.
 The onset detection is a simple implementation loosely based on the algorithms described by Lerch \cite{lerch2012book} in chapter 6.3.
 To extract the onsets of the drum events the significant local maxima of the curve (peaks) have to be detected.
 In order to do that the curve is first normalized.
@@ -236,11 +238,12 @@ In order to find the extract time points of a peak the zero crossings of the res
 Once the frame number of a zero crossing is found, the frame number has to be converted back to a time point.
 This is achieved by applying the following formula, where $f_s$ is the sample rate.
 
-\[
+\begin{align}
+\label{eq:timePoint}
 timePoint = zeroCrossingFrameNumber * \frac{hopSize}{f_s}
-\]
+\end{align}
 
-Due to the formula we are only able to get the time point within a range of approx. 12 ms.
+Due to the formula \ref{eq:timePoint} we are only able to get the time point within a range of approx. 12 ms.
 Once this calculation is done we receive a list of time points where the given template is found in the song which is the drum transcription we were looking for.
 
 \begin{figure}[htb]
