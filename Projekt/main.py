@@ -35,7 +35,8 @@ def main():
     # data = [[2, "chh", chhTemplate]]
     # data = [[2, "rc3", rc3Template]]
     # data = [[2, "cb", cbTemplate]]
-    data = [[1, "bd", bdTemplate], [2, "bd", bdTemplate], [3, "bd", bdTemplate]]
+    #data = [[1, "bd", bdTemplate], [2, "bd", bdTemplate], [3, "bd", bdTemplate]]
+    #data = [[1, "chh", chhTemplate], [2, "chh", chhTemplate], [3, "chh", chhTemplate]]
 
     for drummer, drumName, template in data:
 
@@ -47,7 +48,7 @@ def main():
         allAudioFiles = [f for f in listdir(audioPath) if path.isfile(path.join(audioPath, f)) and f.endswith(".wav")]
 
         # TO BE REMOVED: test track for the plots
-        #allAudioFiles = ["045_phrase_rock_simple_medium_sticks.wav"]
+        allAudioFiles = ["045_phrase_rock_simple_medium_sticks.wav"]
 
         print("Transcripting: " + drumName + " of drummer " + str(drummer) + "\n=============")
 
@@ -73,7 +74,7 @@ def main():
             fs, audio = getNormalizedAudio(audioPath + audioFile)
 
             # find the drum sound
-            result = findTemplate(audio, template, annotations, fs)
+            result = findTemplate(audio, template, annotations, fs, drumName)
 
             # remember statistics
             positives_count = count_positives(result)
@@ -95,87 +96,59 @@ def main():
         print("\n")
 
 
-def writeTrackResults(drummer, filename, drumName, annotation_count, positives_count, false_positives_count, result):
-    resultFilename = "../../Results/Drummer_" + str(drummer) + "/" + filename + "_" + drumName + ".txt"
-    file = open(resultFilename, "w")
-    file.write("# Track Results")
-    file.write("\nThere are " + str(result[:, 0].size) + " result entries compared to " + str(annotation_count)
-               + " annotations in track \"" + filename + "\".")
-    file.write("\nPositives:\t" + str(positives_count))
-    file.write("\nFalse positives:\t" + str(false_positives_count))
 
-    file.write("\n\n## Result legend")
-    file.write("\nResult mapping:\tUNDERFLOW (-2), LOWER (-1), EQUAL (0), UPPER (1), OVERFLOW (2)")
-    file.write("\nList entries:\t[result, ground truth time, estimated time, difference]")
-
-    file.write("\n\n## Entries\n")
-    file.write(str(result))
-    file.close()
-
-
-def writeOverallResults(drummer, drumName, numberOfAnalyzedTracks, positives, false_positives, trackNames):
-    filename = "../../Results/Drummer_" + str(drummer) + "/Results_Drummer_" + str(drummer) + "_" + drumName + ".md"
-    print("Writing overall results to \"" + filename + "\"")
-    file = open(filename, "w")
-
-    file.write("# Overall Results")
-    file.write("\nDrummer:\t" + str(drummer))
-    file.write("\nDrumsound:\t" + str(drumName))
-    file.write("\nNumber of analyzed files: " + str(numberOfAnalyzedTracks))
-    file.write("\n")
-
-    file.write("\n## Positives")
-    file.write("\nMedian:\t" + str(np.median(positives)))
-    file.write("\nMean:\t" + str(np.mean(positives)))
-    file.write("\nStandard Deviation:\t" + str(np.std(positives)))
-    file.write("\n")
-
-    file.write("\n## False Positives")
-    file.write("\nMedian:\t" + str(np.median(false_positives)))
-    file.write("\nMean:\t" + str(np.mean(false_positives)))
-    file.write("\nStandard Deviation:\t" + str(np.std(false_positives)))
-    file.write("\n")
-
-    file.write("\n## Positives Data\n")
-    file.write(str(np.array(sorted(zip(positives, trackNames)))))
-
-    file.write("\n")
-    file.write("\n## False Positives Data\n")
-    file.write(str(np.array(sorted(zip(false_positives, trackNames)))))
-    file.close()
-
-
-def findTemplate(audio, template, annotations, fs):
+# find the template in the given audio and compare it to the annotations
+# returns a list of all compare
+def findTemplate(audio, template, annotations, fs, drumName):
     frame = 1024
+    hop = frame // 2    # 50% overlap
 
-    # 50% overlap
-    hop = frame // 2
+    threshold = 2 / 3
+    epsilon = hop / fs
+
 
     # setup the W matrix with the template spectrum
     W1 = np.matrix(getMagnitudeSpectrum(template[0:frame]))
     W1 = W1.transpose()
-    #print("W: " + str(W1.shape))
 
     # setup the v matrix with the audio spectrum
     V = np.matrix(blockwise(audio, frame, hop, getMagnitudeSpectrum))
     V = V.transpose()
-    #print("V: " + str(V.shape))
 
     # setup the H matrix with random numbers
     H1 = np.matrix(np.random.rand(W1.shape[1], V.shape[1]))
-    #print("H: " + str(H1.shape))
 
     # initialize the NMF
     lsnmf = nimfa.Nmf(V, W=W1, H=H1, seed=None, max_iter=20, rank=30)
-    #lsnmf = nimfa.Nmf(V, seed=None, max_iter=20, rank=15)
 
     # do the NMF and get its results
     lsnmf_fit = lsnmf.factorize()
-    #print("NMF iterations: " + str(lsnmf_fit.fit.n_iter))
     W = lsnmf_fit.basis()
     H = lsnmf_fit.coef()
 
-    # uncomment the following block for a overview plot of the NMF matrices
+    # convert H from a matrix to an normalized array
+    Harray = H.A[0]
+    Harray = Harray / max(Harray)
+
+    # apply threshold
+    Harray = np.maximum(Harray, threshold)
+    Harray = np.diff(Harray)
+
+    # compute zero crossings
+    zeroCrossings = []
+    for x in range(1, len(Harray)):
+        if np.signbit(Harray[x - 1]) < np.signbit(Harray[x]):
+            zeroCrossings.append(x)
+
+    # generate time estimation
+    times = (np.array(zeroCrossings) * hop / fs)
+    data = np.array(list(map(lambda t: [drumName, t], times)))
+
+    # compare estimations and annotations
+    result = compare_times(annotations[:, 1], data[:, 1], epsilon)
+
+
+    # uncomment the following plot blocks for the various figures in the paper
 
     # f, axarr = plt.subplots(2, 2)
     # plt.subplots_adjust(hspace=0.5)
@@ -183,6 +156,8 @@ def findTemplate(audio, template, annotations, fs):
     # axarr[0, 0].matshow(V, aspect='auto', origin='lower', norm=LogNorm(vmin=0.01, vmax=1))
     # axarr[0, 0].set_title('(a) Original spectrum')
     # axarr[0, 0].xaxis.set_ticks_position('bottom')
+    # axarr[0, 0].set_xlabel("STFT frame number")
+    # axarr[0, 0].set_ylabel("Frequency bin")
     # #axarr[0, 0].colorbar(im, cax=axcolor, ticks=t, format='$%.2f$')
     #
     # axarr[0, 1].matshow(W, aspect='auto', origin='lower')
@@ -192,6 +167,8 @@ def findTemplate(audio, template, annotations, fs):
     # axarr[0, 1].set_xlim([0, 0.5])
     # axarr[0, 1].set_xticklabels([0, 1], fontdict=None, minor=False)
     # axarr[0, 1].locator_params(axis='x', nbins=2)
+    # axarr[0, 1].set_xlabel("Template")
+    # axarr[0, 1].set_ylabel("Frequency bin")
     #
     # axarr[1, 0].matshow(H, aspect='auto', origin='lower')
     # axarr[1, 0].set_title('(c) H')
@@ -200,30 +177,27 @@ def findTemplate(audio, template, annotations, fs):
     # axarr[1, 0].set_ylim([0, 0.5])
     # axarr[1, 0].set_yticklabels([0, 1], fontdict=None, minor=False)
     # axarr[1, 0].locator_params(axis='y', nbins=2)
+    # axarr[1, 0].set_xlabel("STFT frame number")
+    # axarr[1, 0].set_ylabel("Template")
     #
     # axarr[1, 1].matshow(W*H, aspect='auto', origin='lower', norm=LogNorm(vmin=0.01, vmax=1))
     # axarr[1, 1].set_title('(d) W*H')
     # axarr[1, 1].xaxis.set_ticks_position('bottom')
+    # axarr[1, 1].set_xlabel("STFT frame number")
+    # axarr[1, 1].set_ylabel("Frequency bin")
     #
     # plt.savefig("MatrixOverview.pdf", bbox_inches='tight')
     # plt.show()
 
-    # convert H from a matrix to an normalized array
-    Harray = H.A[0]
-    Harray = Harray / max(Harray)
-
-    thresholdline = np.empty_like(Harray)
-    thresholdline.fill(2/3)
-
     # plt.figure()
+    # thresholdline = np.empty_like(Harray)
+    # thresholdline.fill(threshold)
     # plt.plot(thresholdline, color='r')
     # plt.plot(Harray)
+    # plt.xlabel("STFT frame number")
+    # plt.ylabel("Magnitude")
     # plt.savefig("ActivationMatrix.pdf", bbox_inches='tight')
     # plt.show()
-
-    # apply threshold
-    Harray = np.maximum(Harray, 2/3)
-    Harray = np.diff(Harray)
 
     # plt.figure()
     # plt.plot(Harray)
@@ -231,56 +205,11 @@ def findTemplate(audio, template, annotations, fs):
     # plt.savefig("ZeroCrosses.pdf", bbox_inches='tight')
     # plt.show()
 
-    #Harray[Harray == 0] = np.nan
-    #zeroCrossings = np.where(np.diff(np.signbit(Harray)))[0]
-    zeroCrossings = []
-    for x in range(1, len(Harray)):
-        if np.signbit(Harray[x - 1]) < np.signbit(Harray[x]):
-            zeroCrossings.append(x)
-
-    times = (np.array(zeroCrossings) * hop / fs)
-    data = np.array(list(map(lambda t: ['bd', t], times)))
+    return result
 
 
-    epsilon = hop / fs
-    return compare_times(annotations[:, 1], data[:, 1], epsilon)
-
-    # synthAudio = []
-    # delta = V
-    # for row in delta:
-    #     row = np.squeeze(np.asarray(row))  # transform 1D matrix to array
-    #     synthAudio.extend(np.fft.ifft(row))
-    #
-    # plt.figure()
-    # plt.plot(synthAudio)
-    #
-    # mx = 32767
-    # synthAudio = np.fromiter((s * mx for s in synthAudio), dtype=np.int16)
-    # wavio.write("synth.wav", synthAudio, fs)
-
-
-#########################################
-### Helper functions
-#########################################
-
-
-def count_positives(data):
-    return np.count_nonzero(data[:,0] == str(Result.EQUAL))
-
-def count_false_positives(data):
-    neg = np.count_nonzero(data[:,0] == str(Result.LOWER))
-    pos = np.count_nonzero(data[:,0] == str(Result.UPPER))
-    return neg + pos
-
-def count_underflow(data):
-    return np.count_nonzero(data[:,0] == str(Result.UNDERFLOW))
-
-def count_overflow(data):
-    return np.count_nonzero(data[:,0] == str(Result.OVERFLOW))
-
-
+# datatype of the time comparing result
 class Result:
-
     # There are more annotated events then detetcted
     UNDERFLOW = -2
 
@@ -297,8 +226,21 @@ class Result:
     OVERFLOW = 2
 
 
+def compare(a, b, epsilon):
+    diff = float(a) - float(b)
+    diff_abs = abs(diff)
+
+    if diff_abs <= epsilon:
+        return Result.EQUAL, diff_abs
+    if diff < 0.0:
+        return Result.LOWER, diff_abs
+
+    return Result.UPPER, diff_abs
+
+
+# returns a list of all compare ordered like this:
+# [[result, groundtruth_time, data_time, diff], ...]
 def compare_times(groundtruth, data, epsilon):
-    # [result, groundtruth_time, data_time, diff]
     results = []
 
     groundtruth_iter = iter(groundtruth)
@@ -336,7 +278,7 @@ def compare_times(groundtruth, data, epsilon):
 
             results.append([apply_result, groundtruth_time, data_time, diff])
 
-            # advance iterators
+            # advance the iterators
             if result == Result.EQUAL:
                 groundtruth_time = next(groundtruth_iter)
                 data_time = next(data_iter)
@@ -346,8 +288,9 @@ def compare_times(groundtruth, data, epsilon):
                 data_time = next(data_iter)
             else:
                 print("Warning: undefined behaviour in compare_times!")
+                break
 
-    # if one or both iterators can't be advanced the loop won't continue any more
+    # if one or both iterators can't be advanced anymore the loop will stop
     except:
         # check for left values in the ground truth iterator
         for time in groundtruth_iter:
@@ -360,16 +303,27 @@ def compare_times(groundtruth, data, epsilon):
     return np.array(results)
 
 
-def compare(a, b, epsilon):
-    diff = float(a) - float(b)
-    diff_abs = abs(diff)
+#########################################
+### Helper functions
+#########################################
 
-    if diff_abs <= epsilon:
-        return Result.EQUAL, diff_abs
-    if diff < 0.0:
-        return Result.LOWER, diff_abs
 
-    return Result.UPPER, diff_abs
+def count_positives(data):
+    return np.count_nonzero(data[:,0] == str(Result.EQUAL))
+
+
+def count_false_positives(data):
+    neg = np.count_nonzero(data[:,0] == str(Result.LOWER))
+    pos = np.count_nonzero(data[:,0] == str(Result.UPPER))
+    return neg + pos
+
+
+def count_underflow(data):
+    return np.count_nonzero(data[:,0] == str(Result.UNDERFLOW))
+
+
+def count_overflow(data):
+    return np.count_nonzero(data[:,0] == str(Result.OVERFLOW))
 
 
 def getMagnitudeSpectrum(frame):
@@ -442,6 +396,61 @@ def loadAnnotationFile(filename, selector=None):
             result.append(np.array([row[1], float(row[0])]))
 
     return np.array(result)
+
+
+def writeTrackResults(drummer, filename, drumName, annotation_count, positives_count, false_positives_count, result):
+    resultFilename = "../../Results/Drummer_" + str(drummer) + "/" + filename + "_" + drumName + ".txt"
+    file = open(resultFilename, "w")
+    file.write("# Track Results")
+    file.write("\nThere are " + str(result[:, 0].size) + " result entries compared to " + str(annotation_count)
+               + " annotations in track \"" + filename + "\".")
+    file.write("\nPositives:\t" + str(positives_count))
+    file.write("\nFalse positives:\t" + str(false_positives_count))
+
+    file.write("\n\n## Result legend")
+    file.write("\nList entries:\n\t[RESULT, annotated time, estimated time, difference]")
+    file.write("\nRESULT mapping:")
+    file.write("\n\tUNDERFLOW\t= -2\tEstimation doesn't have a corresponding annotation")
+    file.write("\n\tLOWER\t\t= -1\tEstimation lies beneath its annotation")
+    file.write("\n\tEQUAL\t\t=  0\tEstimation equals its annotation")
+    file.write("\n\tUPPER\t\t=  1\tEstimation lies above its annotation")
+    file.write("\n\tOVERFLOW\t=  2\tAnnotation doesn't have a corresponding Estimation")
+
+    file.write("\n\n## Entries\n")
+    file.write(str(result))
+    file.close()
+
+
+def writeOverallResults(drummer, drumName, numberOfAnalyzedTracks, positives, false_positives, trackNames):
+    filename = "../../Results/Drummer_" + str(drummer) + "/Results_Drummer_" + str(drummer) + "_" + drumName + ".md"
+    print("Writing overall results to \"" + filename + "\"")
+    file = open(filename, "w")
+
+    file.write("# Overall Results")
+    file.write("\nDrummer:\t" + str(drummer))
+    file.write("\nDrumsound:\t" + str(drumName))
+    file.write("\nNumber of analyzed files: " + str(numberOfAnalyzedTracks))
+    file.write("\n")
+
+    file.write("\n## Positives")
+    file.write("\nMedian:\t" + str(np.median(positives)))
+    file.write("\nMean:\t" + str(np.mean(positives)))
+    file.write("\nStandard Deviation:\t" + str(np.std(positives)))
+    file.write("\n")
+
+    file.write("\n## False Positives")
+    file.write("\nMedian:\t" + str(np.median(false_positives)))
+    file.write("\nMean:\t" + str(np.mean(false_positives)))
+    file.write("\nStandard Deviation:\t" + str(np.std(false_positives)))
+    file.write("\n")
+
+    file.write("\n## Positives Data\n")
+    file.write(str(np.array(sorted(zip(positives, trackNames)))))
+
+    file.write("\n")
+    file.write("\n## False Positives Data\n")
+    file.write(str(np.array(sorted(zip(false_positives, trackNames)))))
+    file.close()
 
 
 if __name__ == '__main__':
