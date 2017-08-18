@@ -1,8 +1,5 @@
 import pydub as pd
 import numpy as np
-import itertools
-import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm
 import math
 import csv
 import nimfa
@@ -12,43 +9,23 @@ from os import path
 
 
 def main():
+    print("\n\t> NOTE: please follow the instructions of the Readme.md <\n")
 
-    # load the drum templates
-    fs, sdTemplate = getNormalizedAudio("001_hits_snare-drum_sticks.wav")
+    # load the drum template
     fs, bdTemplate = getNormalizedAudio("004_hits_bass-drum_pedal.wav")
-    fs, ohhTemplate = getNormalizedAudio("005_hits_open-hi-hat_sticks.wav")
-    fs, chhTemplate = getNormalizedAudio("006_closed-hi-hat_sticks.wav")
-    fs, rc3Template = getNormalizedAudio("008_hits_ride-cymbal-1_sticks.wav")
-    fs, cbTemplate = getNormalizedAudio("013_hits_cowbell_sticks.wav")
-
-    # plt.plot(template)
-    # plt.axvspan(0, 1024, color='red', alpha=0.5)
-    # plt.xlabel("Sample")
-    # plt.ylabel("Amplitude")
-    # plt.savefig("BassdrumTemplate.pdf")
-    # plt.show()
 
     # Prepare the data
-    # data = [[2, "sd", sdTemplate]]
-    data = [[2, "bd", bdTemplate]]
-    # data = [[2, "ohh", ohhTemplate]]
-    # data = [[2, "chh", chhTemplate]]
-    # data = [[2, "rc3", rc3Template]]
-    # data = [[2, "cb", cbTemplate]]
-    #data = [[1, "bd", bdTemplate], [2, "bd", bdTemplate], [3, "bd", bdTemplate]]
-    #data = [[1, "chh", chhTemplate], [2, "chh", chhTemplate], [3, "chh", chhTemplate]]
+    data = [[1, "bd", bdTemplate], [2, "bd", bdTemplate], [3, "bd", bdTemplate]]
 
     for drummer, drumName, template in data:
 
         # setup the file directories
-        audioPath = u"../../ENST-drums-public/drummer_" + str(drummer) + "/audio/wet_mix/"
-        annotationPath = u"../../ENST-drums-public/drummer_" + str(drummer) + "/annotation/"
+        audioPath = u"../ENST-drums-public/drummer_" + str(drummer) + "/audio/wet_mix/"
+        annotationPath = u"../ENST-drums-public/drummer_" + str(drummer) + "/annotation/"
 
         # get all audio file names
         allAudioFiles = [f for f in listdir(audioPath) if path.isfile(path.join(audioPath, f)) and f.endswith(".wav")]
 
-        # TO BE REMOVED: test track for the plots
-        allAudioFiles = ["045_phrase_rock_simple_medium_sticks.wav"]
 
         print("Transcripting: " + drumName + " of drummer " + str(drummer) + "\n=============")
 
@@ -106,8 +83,7 @@ def findTemplate(audio, template, annotations, fs, drumName):
     threshold = 2 / 3
     epsilon = hop / fs
 
-
-    # setup the W matrix with the template spectrum
+    # setup the W matrix with the spectrum of the template transient
     W1 = np.matrix(getMagnitudeSpectrum(template[0:frame]))
     W1 = W1.transpose()
 
@@ -149,6 +125,7 @@ def findTemplate(audio, template, annotations, fs, drumName):
 
 
     # uncomment the following plot blocks for the various figures in the paper
+    # source for paper plots: "../ENST-drums-public/drummer_2/audio/wet_mix/045_phrase_rock_simple_medium_sticks.wav"
 
     # f, axarr = plt.subplots(2, 2)
     # plt.subplots_adjust(hspace=0.5)
@@ -399,7 +376,7 @@ def loadAnnotationFile(filename, selector=None):
 
 
 def writeTrackResults(drummer, filename, drumName, annotation_count, positives_count, false_positives_count, result):
-    resultFilename = "../../Results/Drummer_" + str(drummer) + "/" + filename + "_" + drumName + ".txt"
+    resultFilename = "../Evaluation/Drummer_" + str(drummer) + "/" + filename + "_" + drumName + ".txt"
     file = open(resultFilename, "w")
     file.write("# Track Results")
     file.write("\nThere are " + str(result[:, 0].size) + " result entries compared to " + str(annotation_count)
@@ -422,7 +399,7 @@ def writeTrackResults(drummer, filename, drumName, annotation_count, positives_c
 
 
 def writeOverallResults(drummer, drumName, numberOfAnalyzedTracks, positives, false_positives, trackNames):
-    filename = "../../Results/Drummer_" + str(drummer) + "/Results_Drummer_" + str(drummer) + "_" + drumName + ".md"
+    filename = "../Evaluation/Drummer_" + str(drummer) + "/Results_Drummer_" + str(drummer) + "_" + drumName + ".md"
     print("Writing overall results to \"" + filename + "\"")
     file = open(filename, "w")
 

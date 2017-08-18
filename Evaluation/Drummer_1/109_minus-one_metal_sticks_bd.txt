@@ -1,0 +1,23 @@
+# Track Results
+There are 306 result entries compared to 131 annotations in track "109_minus-one_metal_sticks".
+Positives:	21
+False positives:	189
+
+## Result legend
+List entries:
+	[RESULT, annotated time, estimated time, difference]
+RESULT mapping:
+	UNDERFLOW	= -2	Estimation doesn't have a corresponding annotation
+	LOWER		= -1	Estimation lies beneath its annotation
+	EQUAL		=  0	Estimation equals its annotation
+	UPPER		=  1	Estimation lies above its annotation
+	OVERFLOW	=  2	Annotation doesn't have a corresponding Estimation
+
+## Entries
+[['-2' '5.351' '12.3646258503' '7.0136258502999995']
+ ['-2' '7.696' '12.3646258503' '4.6686258503']
+ ['-2' '8.024' '12.3646258503' '4.3406258503']
+ ..., 
+ ['2' '67.02' '66.8270294785' '0.19297052150000127']
+ ['2' '67.02' '66.8618594104' '0.158140589599995']
+ ['1' '67.02' '66.8966893424' '0.12331065760000115']]

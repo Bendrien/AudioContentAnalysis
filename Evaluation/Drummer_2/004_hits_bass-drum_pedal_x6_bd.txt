@@ -1,0 +1,22 @@
+# Track Results
+There are 6 result entries compared to 6 annotations in track "004_hits_bass-drum_pedal_x6".
+Positives:	6
+False positives:	0
+
+## Result legend
+List entries:
+	[RESULT, annotated time, estimated time, difference]
+RESULT mapping:
+	UNDERFLOW	= -2	Estimation doesn't have a corresponding annotation
+	LOWER		= -1	Estimation lies beneath its annotation
+	EQUAL		=  0	Estimation equals its annotation
+	UPPER		=  1	Estimation lies above its annotation
+	OVERFLOW	=  2	Annotation doesn't have a corresponding Estimation
+
+## Entries
+[['0' '0.762' '0.766258503401' '0.00425850340099998']
+ ['0' '2.985' '2.99537414966' '0.010374149660000054']
+ ['0' '5.296' '5.30575963719' '0.00975963719000017']
+ ['0' '7.384' '7.38394557823' '5.442177000070103e-05']
+ ['0' '9.562' '9.56662131519' '0.00462131519000053']
+ ['0' '12.034' '12.0395464853' '0.005546485300000015']]

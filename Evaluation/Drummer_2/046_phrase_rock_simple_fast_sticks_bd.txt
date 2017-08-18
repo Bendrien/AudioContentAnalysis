@@ -1,0 +1,33 @@
+# Track Results
+There are 17 result entries compared to 17 annotations in track "046_phrase_rock_simple_fast_sticks".
+Positives:	17
+False positives:	0
+
+## Result legend
+List entries:
+	[RESULT, annotated time, estimated time, difference]
+RESULT mapping:
+	UNDERFLOW	= -2	Estimation doesn't have a corresponding annotation
+	LOWER		= -1	Estimation lies beneath its annotation
+	EQUAL		=  0	Estimation equals its annotation
+	UPPER		=  1	Estimation lies above its annotation
+	OVERFLOW	=  2	Annotation doesn't have a corresponding Estimation
+
+## Entries
+[['0' '0.231' '0.232199546485' '0.0011995464849999804']
+ ['0' '1.055' '1.05650793651' '0.0015079365100001407']
+ ['0' '1.876' '1.88081632653' '0.004816326530000081']
+ ['0' '2.721' '2.71673469388' '0.004265306120000201']
+ ['0' '3.56' '3.56426303855' '0.004263038549999987']
+ ['0' '4.388' '4.38857142857' '0.0005714285699998101']
+ ['0' '5.025' '5.02712018141' '0.0021201814099995886']
+ ['0' '5.233' '5.23609977324' '0.0030997732400006583']
+ ['0' '6.065' '6.07201814059' '0.007018140589999611']
+ ['0' '6.699' '6.6989569161' '4.3083899999629693e-05']
+ ['0' '6.911' '6.90793650794' '0.003063492059999895']
+ ['0' '7.752' '7.75546485261' '0.003464852610000513']
+ ['0' '7.967' '7.96444444444' '0.002555555559999867']
+ ['0' '8.589' '8.59138321995' '0.002383219949999571']
+ ['0' '9.418' '9.41569160998' '0.0023083900199996066']
+ ['0' '9.636' '9.63628117914' '0.00028117913999992084']
+ ['0' '10.256' '10.2516099773' '0.004390022700000884']]

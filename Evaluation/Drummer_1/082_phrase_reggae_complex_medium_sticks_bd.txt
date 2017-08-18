@@ -1,0 +1,33 @@
+# Track Results
+There are 17 result entries compared to 15 annotations in track "082_phrase_reggae_complex_medium_sticks".
+Positives:	1
+False positives:	3
+
+## Result legend
+List entries:
+	[RESULT, annotated time, estimated time, difference]
+RESULT mapping:
+	UNDERFLOW	= -2	Estimation doesn't have a corresponding annotation
+	LOWER		= -1	Estimation lies beneath its annotation
+	EQUAL		=  0	Estimation equals its annotation
+	UPPER		=  1	Estimation lies above its annotation
+	OVERFLOW	=  2	Annotation doesn't have a corresponding Estimation
+
+## Entries
+[['-2' '1.453' '7.98766439909' '6.5346643990899995']
+ ['-2' '1.693' '7.98766439909' '6.294664399089999']
+ ['-2' '2.691' '7.98766439909' '5.29666439909']
+ ['-2' '2.843' '7.98766439909' '5.14466439909']
+ ['-2' '3.047' '7.98766439909' '4.94066439909']
+ ['-2' '4.9' '7.98766439909' '3.0876643990899995']
+ ['-2' '5.216' '7.98766439909' '2.7716643990899996']
+ ['-2' '5.592' '7.98766439909' '2.39566439909']
+ ['-2' '6.376' '7.98766439909' '1.6116643990899995']
+ ['-2' '7.649' '7.98766439909' '0.3386643990899998']
+ ['-2' '7.768' '7.98766439909' '0.21966439909000002']
+ ['0' '7.982' '7.98766439909' '0.0056643990899996055']
+ ['2' '8.814' '8.02249433107' '0.7915056689300002']
+ ['2' '8.814' '8.05732426304' '0.7566757369600001']
+ ['1' '8.814' '8.12698412698' '0.68701587302']
+ ['-2' '9.074' '-1' '-1']
+ ['-2' '11.755' '-1' '-1']]

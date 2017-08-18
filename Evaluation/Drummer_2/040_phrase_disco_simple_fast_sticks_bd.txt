@@ -1,0 +1,33 @@
+# Track Results
+There are 17 result entries compared to 17 annotations in track "040_phrase_disco_simple_fast_sticks".
+Positives:	17
+False positives:	0
+
+## Result legend
+List entries:
+	[RESULT, annotated time, estimated time, difference]
+RESULT mapping:
+	UNDERFLOW	= -2	Estimation doesn't have a corresponding annotation
+	LOWER		= -1	Estimation lies beneath its annotation
+	EQUAL		=  0	Estimation equals its annotation
+	UPPER		=  1	Estimation lies above its annotation
+	OVERFLOW	=  2	Annotation doesn't have a corresponding Estimation
+
+## Entries
+[['0' '0.587' '0.592108843537' '0.00510884353700003']
+ ['0' '1.093' '1.1029478458' '0.009947845799999966']
+ ['0' '1.591' '1.59056689342' '0.0004331065800000644']
+ ['0' '2.106' '2.10140589569' '0.004594104309999736']
+ ['0' '2.599' '2.60063492063' '0.0016349206299999253']
+ ['0' '3.105' '3.1114739229' '0.006473922900000151']
+ ['0' '3.602' '3.59909297052' '0.0029070294799997676']
+ ['0' '4.117' '4.12154195011' '0.004541950110000137']
+ ['0' '4.626' '4.63238095238' '0.006380952379999805']
+ ['0' '5.141' '5.14321995465' '0.0022199546500001333']
+ ['0' '5.639' '5.64244897959' '0.003448979589999901']
+ ['0' '6.16' '6.16489795918' '0.004897959180000022']
+ ['0' '6.665' '6.66412698413' '0.0008730158699998825']
+ ['0' '7.173' '7.17496598639' '0.0019659863900001184']
+ ['0' '7.682' '7.68580498866' '0.003804988659999786']
+ ['0' '8.19' '8.19664399093' '0.006643990929999788']
+ ['0' '8.689' '8.68426303855' '0.00473696144999991']]

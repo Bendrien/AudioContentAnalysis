@@ -1,0 +1,26 @@
+# Track Results
+There are 10 result entries compared to 10 annotations in track "076_phrase_hard-rock_simple_medium_sticks".
+Positives:	10
+False positives:	0
+
+## Result legend
+List entries:
+	[RESULT, annotated time, estimated time, difference]
+RESULT mapping:
+	UNDERFLOW	= -2	Estimation doesn't have a corresponding annotation
+	LOWER		= -1	Estimation lies beneath its annotation
+	EQUAL		=  0	Estimation equals its annotation
+	UPPER		=  1	Estimation lies above its annotation
+	OVERFLOW	=  2	Annotation doesn't have a corresponding Estimation
+
+## Entries
+[['0' '0.395' '0.394739229025' '0.0002607709749999909']
+ ['0' '1.647' '1.64861678005' '0.0016167800499999885']
+ ['0' '2.91' '2.91410430839' '0.004104308389999645']
+ ['0' '4.135' '4.14476190476' '0.009761904760000384']
+ ['0' '5.368' '5.36380952381' '0.00419047619000068']
+ ['0' '6.61' '6.60607709751' '0.0039229024900002685']
+ ['0' '7.541' '7.54648526077' '0.005485260769999556']
+ ['0' '7.861' '7.85995464853' '0.0010453514700001776']
+ ['0' '9.125' '9.12544217687' '0.00044217686999914463']
+ ['0' '10.378' '10.3793197279' '0.0013197279000003448']]

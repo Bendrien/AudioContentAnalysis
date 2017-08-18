@@ -1,0 +1,24 @@
+# Track Results
+There are 8 result entries compared to 8 annotations in track "093_phrase_funk_simple_slow_sticks".
+Positives:	8
+False positives:	0
+
+## Result legend
+List entries:
+	[RESULT, annotated time, estimated time, difference]
+RESULT mapping:
+	UNDERFLOW	= -2	Estimation doesn't have a corresponding annotation
+	LOWER		= -1	Estimation lies beneath its annotation
+	EQUAL		=  0	Estimation equals its annotation
+	UPPER		=  1	Estimation lies above its annotation
+	OVERFLOW	=  2	Annotation doesn't have a corresponding Estimation
+
+## Entries
+[['0' '0.129' '0.127709750567' '0.0012902494329999903']
+ ['0' '1.787' '1.78793650794' '0.0009365079400001086']
+ ['0' '3.421' '3.42494331066' '0.003943310659999977']
+ ['0' '5.056' '5.06195011338' '0.005950113379999955']
+ ['0' '5.737' '5.73532879819' '0.0016712018099998005']
+ ['0' '6.671' '6.67573696145' '0.00473696144999991']
+ ['0' '8.247' '8.25469387755' '0.007693877550000394']
+ ['0' '9.874' '9.88009070295' '0.006090702949999027']]

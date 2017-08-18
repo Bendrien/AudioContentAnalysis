@@ -1,0 +1,33 @@
+# Track Results
+There are 17 result entries compared to 15 annotations in track "039_phrase_disco_complex_slow_sticks".
+Positives:	0
+False positives:	3
+
+## Result legend
+List entries:
+	[RESULT, annotated time, estimated time, difference]
+RESULT mapping:
+	UNDERFLOW	= -2	Estimation doesn't have a corresponding annotation
+	LOWER		= -1	Estimation lies beneath its annotation
+	EQUAL		=  0	Estimation equals its annotation
+	UPPER		=  1	Estimation lies above its annotation
+	OVERFLOW	=  2	Annotation doesn't have a corresponding Estimation
+
+## Entries
+[['-2' '0.781' '11.2268480726' '10.445848072599999']
+ ['-2' '1.463' '11.2268480726' '9.763848072599998']
+ ['-2' '2.137' '11.2268480726' '9.089848072599999']
+ ['-2' '2.793' '11.2268480726' '8.4338480726']
+ ['-2' '3.445' '11.2268480726' '7.781848072599999']
+ ['-2' '4.093' '11.2268480726' '7.133848072599999']
+ ['-2' '4.734' '11.2268480726' '6.492848072599999']
+ ['-2' '5.36' '11.2268480726' '5.866848072599999']
+ ['-2' '6.003' '11.2268480726' '5.223848072599999']
+ ['-2' '7.294' '11.2268480726' '3.9328480725999997']
+ ['-2' '7.929' '11.2268480726' '3.297848072599999']
+ ['-2' '8.57' '11.2268480726' '2.656848072599999']
+ ['-2' '9.236' '11.2268480726' '1.9908480725999986']
+ ['-2' '9.903' '11.2268480726' '1.3238480725999988']
+ ['-1' '11.214' '11.2268480726' '0.012848072599998872']
+ ['2' '-1' '11.2616780045' '-1']
+ ['2' '-1' '11.4126077098' '-1']]

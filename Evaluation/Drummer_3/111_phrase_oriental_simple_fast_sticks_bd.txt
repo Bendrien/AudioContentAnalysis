@@ -1,0 +1,33 @@
+# Track Results
+There are 17 result entries compared to 16 annotations in track "111_phrase_oriental_simple_fast_sticks".
+Positives:	15
+False positives:	2
+
+## Result legend
+List entries:
+	[RESULT, annotated time, estimated time, difference]
+RESULT mapping:
+	UNDERFLOW	= -2	Estimation doesn't have a corresponding annotation
+	LOWER		= -1	Estimation lies beneath its annotation
+	EQUAL		=  0	Estimation equals its annotation
+	UPPER		=  1	Estimation lies above its annotation
+	OVERFLOW	=  2	Annotation doesn't have a corresponding Estimation
+
+## Entries
+[['0' '0.352' '0.359909297052' '0.007909297051999997']
+ ['0' '0.646' '0.650158730159' '0.004158730159000035']
+ ['0' '1.256' '1.26548752834' '0.009487528339999995']
+ ['0' '1.564' '1.56734693878' '0.0033469387800000305']
+ ['0' '2.175' '2.18267573696' '0.0076757369600000125']
+ ['0' '2.5' '2.50775510204' '0.0077551020399999615']
+ ['0' '3.103' '3.1114739229' '0.00847392289999993']
+ ['0' '3.43' '3.43655328798' '0.006553287979999656']
+ ['-1' '4.016' '4.02866213152' '0.012662131519999953']
+ ['2' '4.332' '4.02866213152' '0.3033378684799999']
+ ['0' '4.332' '4.33052154195' '0.001478458050000242']
+ ['0' '4.947' '4.94585034014' '0.0011496598600002628']
+ ['0' '5.237' '5.23609977324' '0.0009002267599997893']
+ ['0' '5.834' '5.8398185941' '0.005818594099999963']
+ ['0' '6.127' '6.13006802721' '0.0030680272100003236']
+ ['0' '6.725' '6.72217687075' '0.00282312924999939']
+ ['0' '7.021' '7.02403628118' '0.003036281179999989']]

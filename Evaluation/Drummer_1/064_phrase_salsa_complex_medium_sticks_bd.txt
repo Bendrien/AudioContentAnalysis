@@ -1,0 +1,30 @@
+# Track Results
+There are 14 result entries compared to 11 annotations in track "064_phrase_salsa_complex_medium_sticks".
+Positives:	2
+False positives:	3
+
+## Result legend
+List entries:
+	[RESULT, annotated time, estimated time, difference]
+RESULT mapping:
+	UNDERFLOW	= -2	Estimation doesn't have a corresponding annotation
+	LOWER		= -1	Estimation lies beneath its annotation
+	EQUAL		=  0	Estimation equals its annotation
+	UPPER		=  1	Estimation lies above its annotation
+	OVERFLOW	=  2	Annotation doesn't have a corresponding Estimation
+
+## Entries
+[['-2' '0.675' '10.9598185941' '10.284818594099999']
+ ['-2' '3.255' '10.9598185941' '7.7048185941']
+ ['-2' '5.45' '10.9598185941' '5.5098185940999995']
+ ['-2' '5.643' '10.9598185941' '5.3168185941']
+ ['-2' '5.823' '10.9598185941' '5.136818594099999']
+ ['-2' '7.244' '10.9598185941' '3.7158185941']
+ ['-2' '7.453' '10.9598185941' '3.5068185940999994']
+ ['-2' '7.926' '10.9598185941' '3.0338185940999995']
+ ['-2' '8.071' '10.9598185941' '2.8888185941']
+ ['0' '10.954' '10.9598185941' '0.005818594099999075']
+ ['2' '11.069' '10.9830385488' '0.0859614512000011']
+ ['2' '11.069' '11.0178684807' '0.05113151930000015']
+ ['0' '11.069' '11.0759183673' '0.006918367299999062']
+ ['2' '-1' '11.1455782313' '-1']]

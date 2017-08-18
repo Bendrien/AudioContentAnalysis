@@ -1,0 +1,31 @@
+# Track Results
+There are 15 result entries compared to 14 annotations in track "087_phrase_waltz_complex_slow_brushes".
+Positives:	6
+False positives:	1
+
+## Result legend
+List entries:
+	[RESULT, annotated time, estimated time, difference]
+RESULT mapping:
+	UNDERFLOW	= -2	Estimation doesn't have a corresponding annotation
+	LOWER		= -1	Estimation lies beneath its annotation
+	EQUAL		=  0	Estimation equals its annotation
+	UPPER		=  1	Estimation lies above its annotation
+	OVERFLOW	=  2	Annotation doesn't have a corresponding Estimation
+
+## Entries
+[['-2' '0.321' '1.98530612245' '1.66430612245']
+ ['-2' '1.701' '1.98530612245' '0.28430612244999987']
+ ['0' '1.981' '1.98530612245' '0.0043061224499998385']
+ ['-2' '3.852' '4.00544217687' '0.15344217687000006']
+ ['0' '4.0' '4.00544217687' '0.005442176869999926']
+ ['-2' '4.763' '6.14167800454' '1.3786780045400002']
+ ['0' '6.132' '6.14167800454' '0.009678004540000451']
+ ['2' '6.558' '6.2229478458' '0.33505215419999956']
+ ['0' '6.558' '6.55963718821' '0.00163718821000014']
+ ['0' '7.626' '7.62775510204' '0.0017551020399997341']
+ ['-2' '9.044' '12.7941950113' '3.750195011299999']
+ ['-2' '10.246' '12.7941950113' '2.548195011299999']
+ ['-2' '10.407' '12.7941950113' '2.3871950112999993']
+ ['-2' '12.336' '12.7941950113' '0.45819501129999907']
+ ['0' '12.799' '12.7941950113' '0.0048049887000001235']]

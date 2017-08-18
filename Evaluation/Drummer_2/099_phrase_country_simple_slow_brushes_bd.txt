@@ -1,0 +1,27 @@
+# Track Results
+There are 11 result entries compared to 11 annotations in track "099_phrase_country_simple_slow_brushes".
+Positives:	11
+False positives:	0
+
+## Result legend
+List entries:
+	[RESULT, annotated time, estimated time, difference]
+RESULT mapping:
+	UNDERFLOW	= -2	Estimation doesn't have a corresponding annotation
+	LOWER		= -1	Estimation lies beneath its annotation
+	EQUAL		=  0	Estimation equals its annotation
+	UPPER		=  1	Estimation lies above its annotation
+	OVERFLOW	=  2	Annotation doesn't have a corresponding Estimation
+
+## Entries
+[['0' '0.167' '0.174149659864' '0.007149659863999985']
+ ['0' '1.259' '1.26548752834' '0.006487528340000104']
+ ['0' '2.377' '2.38004535147' '0.0030453514700004014']
+ ['0' '3.498' '3.4946031746' '0.003396825400000303']
+ ['0' '4.598' '4.60916099773' '0.011160997730000233']
+ ['0' '5.724' '5.73532879819' '0.0113287981900001']
+ ['0' '6.843' '6.84988662132' '0.00688662131999962']
+ ['0' '7.976' '7.97605442177' '5.442176999981285e-05']
+ ['0' '9.116' '9.11383219955' '0.002167800449999646']
+ ['0' '10.238' '10.24' '0.002000000000000668']
+ ['0' '11.369' '11.3661678005' '0.002832199500000243']]

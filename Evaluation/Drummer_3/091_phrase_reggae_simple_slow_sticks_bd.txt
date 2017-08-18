@@ -1,0 +1,24 @@
+# Track Results
+There are 8 result entries compared to 8 annotations in track "091_phrase_reggae_simple_slow_sticks".
+Positives:	7
+False positives:	0
+
+## Result legend
+List entries:
+	[RESULT, annotated time, estimated time, difference]
+RESULT mapping:
+	UNDERFLOW	= -2	Estimation doesn't have a corresponding annotation
+	LOWER		= -1	Estimation lies beneath its annotation
+	EQUAL		=  0	Estimation equals its annotation
+	UPPER		=  1	Estimation lies above its annotation
+	OVERFLOW	=  2	Annotation doesn't have a corresponding Estimation
+
+## Entries
+[['0' '3.267' '3.27401360544' '0.00701360544000007']
+ ['0' '5.254' '5.25931972789' '0.005319727890000792']
+ ['0' '7.203' '7.20979591837' '0.0067959183699999315']
+ ['0' '9.205' '9.20671201814' '0.0017120181399992163']
+ ['0' '11.198' '11.2036281179' '0.005628117899998841']
+ ['0' '13.14' '13.1424943311' '0.002494331099999414']
+ ['-2' '14.919' '15.0929705215' '0.17397052149999936']
+ ['0' '15.086' '15.0929705215' '0.006970521499999549']]

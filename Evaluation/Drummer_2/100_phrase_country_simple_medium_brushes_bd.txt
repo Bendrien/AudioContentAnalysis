@@ -1,0 +1,29 @@
+# Track Results
+There are 13 result entries compared to 12 annotations in track "100_phrase_country_simple_medium_brushes".
+Positives:	11
+False positives:	2
+
+## Result legend
+List entries:
+	[RESULT, annotated time, estimated time, difference]
+RESULT mapping:
+	UNDERFLOW	= -2	Estimation doesn't have a corresponding annotation
+	LOWER		= -1	Estimation lies beneath its annotation
+	EQUAL		=  0	Estimation equals its annotation
+	UPPER		=  1	Estimation lies above its annotation
+	OVERFLOW	=  2	Annotation doesn't have a corresponding Estimation
+
+## Entries
+[['-1' '0.383' '0.394739229025' '0.01173922902500002']
+ ['2' '1.249' '0.394739229025' '0.8542607709750001']
+ ['0' '1.249' '1.25387755102' '0.004877551019999871']
+ ['0' '2.121' '2.12462585034' '0.0036258503400001807']
+ ['0' '2.976' '2.97215419501' '0.00384580499000009']
+ ['0' '3.63' '3.63392290249' '0.0039229024900002685']
+ ['0' '3.84' '3.84290249433' '0.002902494330000227']
+ ['0' '4.692' '4.70204081633' '0.01004081633000009']
+ ['0' '5.559' '5.56117913832' '0.0021791383199998293']
+ ['0' '6.434' '6.43192743764' '0.0020725623600004184']
+ ['0' '7.284' '7.29106575964' '0.007065759640000557']
+ ['0' '8.146' '8.15020408163' '0.004204081629998413']
+ ['0' '9.021' '9.02095238095' '4.761905000094657e-05']]

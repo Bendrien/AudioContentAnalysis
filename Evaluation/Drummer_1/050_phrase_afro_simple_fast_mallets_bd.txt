@@ -1,0 +1,23 @@
+# Track Results
+There are 7 result entries compared to 2 annotations in track "050_phrase_afro_simple_fast_mallets".
+Positives:	1
+False positives:	5
+
+## Result legend
+List entries:
+	[RESULT, annotated time, estimated time, difference]
+RESULT mapping:
+	UNDERFLOW	= -2	Estimation doesn't have a corresponding annotation
+	LOWER		= -1	Estimation lies beneath its annotation
+	EQUAL		=  0	Estimation equals its annotation
+	UPPER		=  1	Estimation lies above its annotation
+	OVERFLOW	=  2	Annotation doesn't have a corresponding Estimation
+
+## Entries
+[['-2' '7.527' '7.70902494331' '0.18202494331000008']
+ ['0' '7.699' '7.70902494331' '0.010024943310000367']
+ ['2' '-1' '7.74385487528' '-1']
+ ['2' '-1' '7.77868480726' '-1']
+ ['2' '-1' '7.83673469388' '-1']
+ ['2' '-1' '7.87156462585' '-1']
+ ['2' '-1' '7.90639455782' '-1']]

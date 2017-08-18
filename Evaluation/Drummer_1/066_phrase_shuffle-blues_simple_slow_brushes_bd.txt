@@ -1,0 +1,22 @@
+# Track Results
+There are 6 result entries compared to 7 annotations in track "066_phrase_shuffle-blues_simple_slow_brushes".
+Positives:	3
+False positives:	0
+
+## Result legend
+List entries:
+	[RESULT, annotated time, estimated time, difference]
+RESULT mapping:
+	UNDERFLOW	= -2	Estimation doesn't have a corresponding annotation
+	LOWER		= -1	Estimation lies beneath its annotation
+	EQUAL		=  0	Estimation equals its annotation
+	UPPER		=  1	Estimation lies above its annotation
+	OVERFLOW	=  2	Annotation doesn't have a corresponding Estimation
+
+## Entries
+[['-2' '0.487' '1.97369614512' '1.4866961451199998']
+ ['0' '1.973' '1.97369614512' '0.0006961451199998248']
+ ['-2' '3.541' '5.14321995465' '1.6022199546500002']
+ ['0' '5.137' '5.14321995465' '0.006219954650000581']
+ ['0' '6.617' '6.61768707483' '0.0006870748300000784']
+ ['-2' '9.585' '-1' '-1']]

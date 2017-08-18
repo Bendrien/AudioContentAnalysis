@@ -1,0 +1,33 @@
+# Track Results
+There are 17 result entries compared to 16 annotations in track "079_phrase_salsa_simple_slow_sticks".
+Positives:	15
+False positives:	2
+
+## Result legend
+List entries:
+	[RESULT, annotated time, estimated time, difference]
+RESULT mapping:
+	UNDERFLOW	= -2	Estimation doesn't have a corresponding annotation
+	LOWER		= -1	Estimation lies beneath its annotation
+	EQUAL		=  0	Estimation equals its annotation
+	UPPER		=  1	Estimation lies above its annotation
+	OVERFLOW	=  2	Annotation doesn't have a corresponding Estimation
+
+## Entries
+[['0' '6.006' '6.01396825397' '0.007968253969999672']
+ ['0' '6.502' '6.51319727891' '0.011197278910000108']
+ ['0' '7.299' '7.30267573696' '0.003675736960000009']
+ ['0' '7.746' '7.75546485261' '0.009464852609999852']
+ ['0' '8.526' '8.53333333333' '0.007333333330000968']
+ ['0' '8.988' '8.9977324263' '0.009732426300001151']
+ ['0' '9.801' '9.810430839' '0.00943083900000019']
+ ['0' '10.243' '10.2516099773' '0.008609977299999017']
+ ['0' '11.045' '11.0526984127' '0.007698412699999935']
+ ['0' '11.531' '11.5403174603' '0.009317460300000135']
+ ['0' '12.319' '12.3297959184' '0.010795918399999493']
+ ['0' '12.801' '12.8058049887' '0.0048049887000001235']
+ ['-1' '13.594' '13.606893424' '0.012893424000001374']
+ ['2' '14.093' '13.606893424' '0.4861065759999992']
+ ['0' '14.093' '14.0945124717' '0.0015124716999999066']
+ ['0' '14.897' '14.9072108844' '0.010210884399999287']
+ ['0' '15.37' '15.3716099773' '0.0016099773000011197']]

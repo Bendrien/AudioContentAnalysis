@@ -1,0 +1,24 @@
+# Track Results
+There are 8 result entries compared to 9 annotations in track "088_phrase_waltz_simple_medium_brushes".
+Positives:	7
+False positives:	0
+
+## Result legend
+List entries:
+	[RESULT, annotated time, estimated time, difference]
+RESULT mapping:
+	UNDERFLOW	= -2	Estimation doesn't have a corresponding annotation
+	LOWER		= -1	Estimation lies beneath its annotation
+	EQUAL		=  0	Estimation equals its annotation
+	UPPER		=  1	Estimation lies above its annotation
+	OVERFLOW	=  2	Annotation doesn't have a corresponding Estimation
+
+## Entries
+[['0' '0.356' '0.359909297052' '0.003909297051999994']
+ ['0' '2.073' '2.07818594104' '0.0051859410400001416']
+ ['-2' '3.758' '5.38702947846' '1.6290294784599997']
+ ['0' '5.381' '5.38702947846' '0.00602947845999946']
+ ['0' '6.991' '7.00081632653' '0.009816326530000197']
+ ['0' '8.595' '8.60299319728' '0.007993197279999364']
+ ['0' '10.266' '10.274829932' '0.008829931999999374']
+ ['0' '11.903' '11.9118367347' '0.008836734699999127']]

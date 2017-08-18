@@ -31,3 +31,6 @@ Latex/*/main.pdf
 
 # TexMaker files
 *.synctex.gz
+
+# ENST-Drums
+ENST-drums-public/
